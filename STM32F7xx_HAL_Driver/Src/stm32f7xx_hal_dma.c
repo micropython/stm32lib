@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.1.2
-  * @date    23-September-2016
+  * @version V1.2.2
+  * @date    14-April-2017
   * @brief   DMA HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -85,7 +85,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -277,21 +277,26 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   /* Prepare the DMA Stream FIFO configuration */
   tmp |= hdma->Init.FIFOMode;
 
-  /* the FIFO threshold is not used when the FIFO mode is disabled */
+  /* The FIFO threshold is not used when the FIFO mode is disabled */
   if(hdma->Init.FIFOMode == DMA_FIFOMODE_ENABLE)
   {
     /* Get the FIFO threshold */
     tmp |= hdma->Init.FIFOThreshold;
 
-    if (DMA_CheckFifoParam(hdma) != HAL_OK)
+    /* Check compatibility between FIFO threshold level and size of the memory burst */
+    /* for INCR4, INCR8, INCR16 bursts */
+    if (hdma->Init.MemBurst != DMA_MBURST_SINGLE)
     {
-      /* Update error code */
-      hdma->ErrorCode = HAL_DMA_ERROR_PARAM;
+      if (DMA_CheckFifoParam(hdma) != HAL_OK)
+      {
+        /* Update error code */
+        hdma->ErrorCode = HAL_DMA_ERROR_PARAM;
 
-      /* Change the DMA state */
-      hdma->State = HAL_DMA_STATE_READY;
+        /* Change the DMA state */
+        hdma->State = HAL_DMA_STATE_READY;
 
-      return HAL_ERROR;
+        return HAL_ERROR;
+      }
     }
   }
 
@@ -1221,32 +1226,27 @@ static HAL_StatusTypeDef DMA_CheckFifoParam(DMA_HandleTypeDef *hdma)
   uint32_t tmp = hdma->Init.FIFOThreshold;
 
   /* Memory Data size equal to Byte */
-  if (hdma->Init.MemDataAlignment == DMA_MDATAALIGN_BYTE)
+  if(hdma->Init.MemDataAlignment == DMA_MDATAALIGN_BYTE)
   {
     switch (tmp)
     {
-      case DMA_FIFO_THRESHOLD_1QUARTERFULL:
-        if ((hdma->Init.MemBurst & DMA_SxCR_MBURST_1) == DMA_SxCR_MBURST_1)
-        {
-          status = HAL_ERROR;
-        }
-        break;
-      case DMA_FIFO_THRESHOLD_HALFFULL:
-        if (hdma->Init.MemBurst == DMA_MBURST_INC16)
-        {
-          status = HAL_ERROR;
-        }
-        break;
-      case DMA_FIFO_THRESHOLD_3QUARTERSFULL:
-        if ((hdma->Init.MemBurst & DMA_SxCR_MBURST_1) == DMA_SxCR_MBURST_1)
-        {
-          status = HAL_ERROR;
-        }
-        break;
-      case DMA_FIFO_THRESHOLD_FULL:
-        break;
-      default:
-        break;
+    case DMA_FIFO_THRESHOLD_1QUARTERFULL:
+    case DMA_FIFO_THRESHOLD_3QUARTERSFULL:
+      if ((hdma->Init.MemBurst & DMA_SxCR_MBURST_1) == DMA_SxCR_MBURST_1)
+      {
+        status = HAL_ERROR;
+      }
+      break;
+    case DMA_FIFO_THRESHOLD_HALFFULL:
+      if (hdma->Init.MemBurst == DMA_MBURST_INC16)
+      {
+        status = HAL_ERROR;
+      }
+      break;
+    case DMA_FIFO_THRESHOLD_FULL:
+      break;
+    default:
+      break;
     }
   }
 
@@ -1255,26 +1255,24 @@ static HAL_StatusTypeDef DMA_CheckFifoParam(DMA_HandleTypeDef *hdma)
   {
     switch (tmp)
     {
-      case DMA_FIFO_THRESHOLD_1QUARTERFULL:
+    case DMA_FIFO_THRESHOLD_1QUARTERFULL:
+    case DMA_FIFO_THRESHOLD_3QUARTERSFULL:
+      status = HAL_ERROR;
+      break;
+    case DMA_FIFO_THRESHOLD_HALFFULL:
+      if ((hdma->Init.MemBurst & DMA_SxCR_MBURST_1) == DMA_SxCR_MBURST_1)
+      {
         status = HAL_ERROR;
-        break;
-      case DMA_FIFO_THRESHOLD_HALFFULL:
-        if ((hdma->Init.MemBurst & DMA_SxCR_MBURST_1) == DMA_SxCR_MBURST_1)
-        {
-          status = HAL_ERROR;
-        }
-        break;
-      case DMA_FIFO_THRESHOLD_3QUARTERSFULL:
+      }
+      break;
+    case DMA_FIFO_THRESHOLD_FULL:
+      if (hdma->Init.MemBurst == DMA_MBURST_INC16)
+      {
         status = HAL_ERROR;
-        break;
-      case DMA_FIFO_THRESHOLD_FULL:
-        if (hdma->Init.MemBurst == DMA_MBURST_INC16)
-        {
-          status = HAL_ERROR;
-        }
-        break;
-      default:
-        break;
+      }
+      break;
+    default:
+      break;
     }
   }
 
@@ -1283,19 +1281,19 @@ static HAL_StatusTypeDef DMA_CheckFifoParam(DMA_HandleTypeDef *hdma)
   {
     switch (tmp)
     {
-      case DMA_FIFO_THRESHOLD_1QUARTERFULL:
-      case DMA_FIFO_THRESHOLD_HALFFULL:
-      case DMA_FIFO_THRESHOLD_3QUARTERSFULL:
+    case DMA_FIFO_THRESHOLD_1QUARTERFULL:
+    case DMA_FIFO_THRESHOLD_HALFFULL:
+    case DMA_FIFO_THRESHOLD_3QUARTERSFULL:
+      status = HAL_ERROR;
+      break;
+    case DMA_FIFO_THRESHOLD_FULL:
+      if ((hdma->Init.MemBurst & DMA_SxCR_MBURST_1) == DMA_SxCR_MBURST_1)
+      {
         status = HAL_ERROR;
-        break;
-      case DMA_FIFO_THRESHOLD_FULL:
-        if ((hdma->Init.MemBurst & DMA_SxCR_MBURST_1) == DMA_SxCR_MBURST_1)
-        {
-          status = HAL_ERROR;
-        }
-        break;
-      default:
-        break;
+      }
+      break;
+    default:
+      break;
     }
   }
 
