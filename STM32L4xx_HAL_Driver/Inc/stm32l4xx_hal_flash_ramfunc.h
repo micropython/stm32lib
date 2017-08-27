@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_flash_ramfunc.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    29-January-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of FLASH RAMFUNC driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L4xx_FLASH_RAMFUNC_H
@@ -52,42 +52,42 @@
 
 /** @addtogroup FLASH_RAMFUNC
   * @{
-  */ 
+  */
 
-/* Exported types ------------------------------------------------------------*/ 
+/* Exported types ------------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-/** 
+/**
   * @brief  __RAM_FUNC definition
-  */ 
+  */
 #if defined ( __CC_ARM   )
 /* ARM Compiler
    ------------
-   RAM functions are defined using the toolchain options. 
+   RAM functions are defined using the toolchain options.
    Functions that are executed in RAM should reside in a separate source module.
-   Using the 'Options for File' dialog you can simply change the 'Code / Const' 
+   Using the 'Options for File' dialog you can simply change the 'Code / Const'
    area of a module to a memory space in physical RAM.
    Available memory areas are declared in the 'Target' tab of the 'Options for Target'
-   dialog. 
+   dialog.
 */
-#define __RAM_FUNC HAL_StatusTypeDef 
+#define __RAM_FUNC HAL_StatusTypeDef
 
 #elif defined ( __ICCARM__ )
 /* ICCARM Compiler
    ---------------
-   RAM functions are defined using a specific toolchain keyword "__ramfunc". 
+   RAM functions are defined using a specific toolchain keyword "__ramfunc".
 */
 #define __RAM_FUNC __ramfunc HAL_StatusTypeDef
 
 #elif defined   (  __GNUC__  )
 /* GNU Compiler
    ------------
-  RAM functions are defined using a specific toolchain attribute 
+  RAM functions are defined using a specific toolchain attribute
    "__attribute__((section(".RamFunc")))".
 */
 #define __RAM_FUNC HAL_StatusTypeDef  __attribute__((section(".RamFunc")))
 
 #endif
-                                      
+
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup FLASH_RAMFUNC_Exported_Functions
@@ -102,15 +102,15 @@ __RAM_FUNC  HAL_FLASHEx_EnableRunPowerDown(void);
 __RAM_FUNC  HAL_FLASHEx_DisableRunPowerDown(void);
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}

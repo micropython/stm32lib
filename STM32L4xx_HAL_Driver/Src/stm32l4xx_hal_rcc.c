@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    29-January-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -40,7 +40,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -88,12 +88,11 @@
  */
 #define HSE_TIMEOUT_VALUE          HSE_STARTUP_TIMEOUT
 #define HSI_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
-#define MSI_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */  
+#define MSI_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
 #define LSI_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
+#define HSI48_TIMEOUT_VALUE        ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
 #define PLL_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
 #define CLOCKSWITCH_TIMEOUT_VALUE  ((uint32_t)5000U) /* 5 s    */
-
-#define PLLSOURCE_NONE             ((uint32_t)0U)
 /**
   * @}
   */
@@ -151,11 +150,11 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange);
     [..] Internal/external clock and PLL configuration
          (+) HSI (high-speed internal): 16 MHz factory-trimmed RC used directly or through
              the PLL as System clock source.
-             
+
          (+) MSI (Mutiple Speed Internal): Its frequency is software trimmable from 100KHZ to 48MHZ.
              It can be used to generate the clock for the USB OTG FS (48 MHz).
-             The number of flash wait states is automatically adjusted when MSI range is updated with 
-             HAL_RCC_OscConfig() and the MSI is used as System clock source. 
+             The number of flash wait states is automatically adjusted when MSI range is updated with
+             HAL_RCC_OscConfig() and the MSI is used as System clock source.
 
          (+) LSI (low-speed internal): 32 KHz low consumption RC used as IWDG and/or RTC
              clock source.
@@ -213,26 +212,26 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange);
                 You have to use __HAL_RCC_RTC_ENABLE() and HAL_RCCEx_PeriphCLKConfig() function
                 to configure this clock.
            (+@) USB OTG FS, SDMMC1 and RNG: USB OTG FS requires a frequency equal to 48 MHz
-                to work correctly, while the SDMMC1 and RNG peripherals require a frequency 
+                to work correctly, while the SDMMC1 and RNG peripherals require a frequency
                 equal or lower than to 48 MHz. This clock is derived of the main PLL or PLLSAI1
-                through PLLQ divider. You have to enable the peripheral clock and use 
+                through PLLQ divider. You have to enable the peripheral clock and use
                 HAL_RCCEx_PeriphCLKConfig() function to configure this clock.
            (+@) IWDG clock which is always the LSI clock.
 
 
-         (+) The maximum frequency of the SYSCLK, HCLK, PCLK1 and PCLK2 is 80 MHz. 
+         (+) The maximum frequency of the SYSCLK, HCLK, PCLK1 and PCLK2 is 80 MHz.
              The clock source frequency should be adapted depending on the device voltage range
              as listed in the Reference Manual "Clock source frequency versus voltage scaling" chapter.
 
   @endverbatim
-             
-           Table 1. HCLK clock frequency.             
-           +-------------------------------------------------------+     
+
+           Table 1. HCLK clock frequency.
+           +-------------------------------------------------------+
            | Latency         |    HCLK clock frequency (MHz)       |
-           |                 |-------------------------------------|     
+           |                 |-------------------------------------|
            |                 | voltage range 1  | voltage range 2  |
            |                 |      1.2 V       |     1.0 V        |
-           |-----------------|------------------|------------------|          
+           |-----------------|------------------|------------------|
            |0WS(1 CPU cycles)|  0 < HCLK <= 16  |  0 < HCLK <= 6   |
            |-----------------|------------------|------------------|
            |1WS(2 CPU cycles)| 16 < HCLK <= 32  |  6 < HCLK <= 12  |
@@ -242,7 +241,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange);
            |3WS(4 CPU cycles)| 48 < HCLK <= 64  | 18 < HCLK <= 26  |
            |-----------------|------------------|------------------|
            |4WS(5 CPU cycles)| 64 < HCLK <= 80  | 18 < HCLK <= 26  |
-           +-------------------------------------------------------+   
+           +-------------------------------------------------------+
   * @{
   */
 
@@ -266,16 +265,24 @@ void HAL_RCC_DeInit(void)
 
   /* Insure MSIRDY bit is set before writing default MSIRANGE value */
   while(READ_BIT(RCC->CR, RCC_CR_MSIRDY) == RESET) { __NOP(); }
-  
+
   /* Set MSIRANGE default value */
   MODIFY_REG(RCC->CR, RCC_CR_MSIRANGE, RCC_MSIRANGE_6);
-  
+
   /* Reset CFGR register (MSI is selected as system clock source) */
   CLEAR_REG(RCC->CFGR);
 
   /* Reset HSION, HSIKERON, HSIASFS, HSEON, HSECSSON, PLLON, PLLSAIxON bits */
+#if defined(RCC_PLLSAI2_SUPPORT)
+
   CLEAR_BIT(RCC->CR, RCC_CR_HSEON | RCC_CR_HSION | RCC_CR_HSIKERON| RCC_CR_HSIASFS | RCC_CR_PLLON | RCC_CR_PLLSAI1ON | RCC_CR_PLLSAI2ON);
-  
+
+#else
+
+  CLEAR_BIT(RCC->CR, RCC_CR_HSEON | RCC_CR_HSION | RCC_CR_HSIKERON| RCC_CR_HSIASFS | RCC_CR_PLLON | RCC_CR_PLLSAI1ON);
+
+#endif /* RCC_PLLSAI2_SUPPORT */
+
   /* Reset PLLCFGR register */
   CLEAR_REG(RCC->PLLCFGR);
   SET_BIT(RCC->PLLCFGR, RCC_PLLCFGR_PLLN_4 );
@@ -284,9 +291,13 @@ void HAL_RCC_DeInit(void)
   CLEAR_REG(RCC->PLLSAI1CFGR);
   SET_BIT(RCC->PLLSAI1CFGR,  RCC_PLLSAI1CFGR_PLLSAI1N_4 );
 
+#if defined(RCC_PLLSAI2_SUPPORT)
+
   /* Reset PLLSAI2CFGR register */
   CLEAR_REG(RCC->PLLSAI2CFGR);
   SET_BIT(RCC->PLLSAI2CFGR,  RCC_PLLSAI2CFGR_PLLSAI2N_4 );
+
+#endif /* RCC_PLLSAI2_SUPPORT */
 
   /* Reset HSEBYP bit */
   CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
@@ -304,6 +315,12 @@ void HAL_RCC_DeInit(void)
   * @param  RCC_OscInitStruct  pointer to an RCC_OscInitTypeDef structure that
   *         contains the configuration information for the RCC Oscillators.
   * @note   The PLL is not disabled when used as system clock.
+  * @note   Transitions LSE Bypass to LSE On and LSE On to LSE Bypass are not
+  *         supported by this macro. User should request a transition to LSE Off
+  *         first and then LSE On or LSE Bypass.
+  * @note   Transition HSE Bypass to HSE On and HSE On to HSE Bypass are not
+  *         supported by this macro. User should request a transition to HSE Off
+  *         first and then HSE On or HSE Bypass.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
@@ -361,12 +378,12 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
           if(RCC_SetFlashLatencyFromMSIRange(RCC_OscInitStruct->MSIClockRange) != HAL_OK)
           {
             return HAL_ERROR;
-          }          
+          }
         }
 
         /* Update the SystemCoreClock global variable */
         SystemCoreClock = HAL_RCC_GetSysClockFreq() >> AHBPrescTable[(RCC->CFGR & RCC_CFGR_HPRE)>> POSITION_VAL(RCC_CFGR_HPRE)];
-        
+
         /* Configure the source of time base considering new system clocks settings*/
         HAL_InitTick (TICK_INT_PRIORITY);
       }
@@ -422,7 +439,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     assert_param(IS_RCC_HSE(RCC_OscInitStruct->HSEState));
 
     /* When the HSE is used as system clock or clock source for PLL in these cases it is not allowed to be disabled */
-    if((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_HSE) || 
+    if((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_HSE) ||
        ((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_PLL) && (__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSE)))
     {
       if((READ_BIT(RCC->CR, RCC_CR_HSERDY) != RESET) && (RCC_OscInitStruct->HSEState == RCC_HSE_OFF))
@@ -432,21 +449,6 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     }
     else
     {
-      /* Reset HSEON and HSEBYP bits before configuring the HSE --------------*/
-      __HAL_RCC_HSE_CONFIG(RCC_HSE_OFF);
-
-      /* Get Start Tick*/
-      tickstart = HAL_GetTick();
-
-      /* Wait till HSE is disabled */
-      while(READ_BIT(RCC->CR, RCC_CR_HSERDY) != RESET)
-      {
-        if((HAL_GetTick() - tickstart) > HSE_TIMEOUT_VALUE)
-        {
-          return HAL_TIMEOUT;
-        }
-      }
-
       /* Set the new HSE configuration ---------------------------------------*/
       __HAL_RCC_HSE_CONFIG(RCC_OscInitStruct->HSEState);
 
@@ -488,7 +490,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     assert_param(IS_RCC_HSI(RCC_OscInitStruct->HSIState));
     assert_param(IS_RCC_HSI_CALIBRATION_VALUE(RCC_OscInitStruct->HSICalibrationValue));
 
-    /* Check if HSI is used as system clock or as PLL source when PLL is selected as system clock */ 
+    /* Check if HSI is used as system clock or as PLL source when PLL is selected as system clock */
     if((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_HSI) ||
        ((__HAL_RCC_GET_SYSCLK_SOURCE() == RCC_CFGR_SWS_PLL) && (__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSI)))
     {
@@ -592,7 +594,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   if(((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_LSE) == RCC_OSCILLATORTYPE_LSE)
   {
     FlagStatus       pwrclkchanged = RESET;
-    
+
     /* Check the parameters */
     assert_param(IS_RCC_LSE(RCC_OscInitStruct->LSEState));
 
@@ -603,12 +605,12 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       __HAL_RCC_PWR_CLK_ENABLE();
       pwrclkchanged = SET;
     }
-    
+
     if(HAL_IS_BIT_CLR(PWR->CR1, PWR_CR1_DBP))
     {
       /* Enable write access to Backup domain */
       SET_BIT(PWR->CR1, PWR_CR1_DBP);
-      
+
       /* Wait for Backup domain Write protection disable */
       tickstart = HAL_GetTick();
 
@@ -660,6 +662,50 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       __HAL_RCC_PWR_CLK_DISABLE();
     }
   }
+#if defined(RCC_HSI48_SUPPORT)
+  /*------------------------------ HSI48 Configuration -----------------------*/
+  if(((RCC_OscInitStruct->OscillatorType) & RCC_OSCILLATORTYPE_HSI48) == RCC_OSCILLATORTYPE_HSI48)
+  {
+    /* Check the parameters */
+    assert_param(IS_RCC_HSI48(RCC_OscInitStruct->HSI48State));
+
+    /* Check the LSI State */
+    if(RCC_OscInitStruct->HSI48State != RCC_HSI48_OFF)
+    {
+      /* Enable the Internal Low Speed oscillator (HSI48). */
+      __HAL_RCC_HSI48_ENABLE();
+
+      /* Get Start Tick*/
+      tickstart = HAL_GetTick();
+
+      /* Wait till HSI48 is ready */
+      while(READ_BIT(RCC->CRRCR, RCC_CRRCR_HSI48RDY) == RESET)
+      {
+        if((HAL_GetTick() - tickstart) > HSI48_TIMEOUT_VALUE)
+        {
+          return HAL_TIMEOUT;
+        }
+      }
+    }
+    else
+    {
+      /* Disable the Internal Low Speed oscillator (HSI48). */
+      __HAL_RCC_HSI48_DISABLE();
+
+      /* Get Start Tick*/
+      tickstart = HAL_GetTick();
+
+      /* Wait till HSI48 is disabled */
+      while(READ_BIT(RCC->CRRCR, RCC_CRRCR_HSI48RDY) != RESET)
+      {
+        if((HAL_GetTick() - tickstart) > HSI48_TIMEOUT_VALUE)
+        {
+          return HAL_TIMEOUT;
+        }
+      }
+    }
+  }
+#endif /* RCC_HSI48_SUPPORT */
   /*-------------------------------- PLL Configuration -----------------------*/
   /* Check the parameters */
   assert_param(IS_RCC_PLL(RCC_OscInitStruct->PLL.PLLState));
@@ -725,9 +771,22 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         /* Disable the main PLL. */
         __HAL_RCC_PLL_DISABLE();
 
-        /* Disable all PLL outputs to save power */
-        MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, PLLSOURCE_NONE);
+        /* Disable all PLL outputs to save power if no PLLs on */
+        if((READ_BIT(RCC->CR, RCC_CR_PLLSAI1RDY) == RESET)
+#if defined(RCC_PLLSAI2_SUPPORT)
+           &&
+           (READ_BIT(RCC->CR, RCC_CR_PLLSAI2RDY) == RESET)
+#endif /* RCC_PLLSAI2_SUPPORT */
+          )
+        {
+          MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC, RCC_PLLSOURCE_NONE);
+        }
+
+#if defined(RCC_PLLSAI2_SUPPORT)
         __HAL_RCC_PLLCLKOUT_DISABLE(RCC_PLL_SYSCLK | RCC_PLL_48M1CLK | RCC_PLL_SAI3CLK);
+#else
+        __HAL_RCC_PLLCLKOUT_DISABLE(RCC_PLL_SYSCLK | RCC_PLL_48M1CLK | RCC_PLL_SAI2CLK);
+#endif /* RCC_PLLSAI2_SUPPORT */
 
         /* Get Start Tick*/
         tickstart = HAL_GetTick();
@@ -759,9 +818,9 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   *          This parameter can be one of the following values:
   *            @arg FLASH_LATENCY_0   FLASH 0 Latency cycle
   *            @arg FLASH_LATENCY_1   FLASH 1 Latency cycle
-  *            @arg FLASH_LATENCY_2   FLASH 2 Latency cycle
-  *            @arg FLASH_LATENCY_3   FLASH 3 Latency cycle
-  *            @arg FLASH_LATENCY_4   FLASH 4 Latency cycle
+  *            @arg FLASH_LATENCY_2   FLASH 2 Latency cycles
+  *            @arg FLASH_LATENCY_3   FLASH 3 Latency cycles
+  *            @arg FLASH_LATENCY_4   FLASH 4 Latency cycles
   *
   * @note   The SystemCoreClock CMSIS variable is used to store System Clock Frequency
   *         and updated by HAL_RCC_GetHCLKFreq() function called within this function
@@ -771,7 +830,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   *         the MSI frequency is set to its default value 4 MHz.
   *
   * @note   The HSI can be selected as system clock source after
-  *         from STOP modes or in case of failure of the HSE used directly or indirectly 
+  *         from STOP modes or in case of failure of the HSE used directly or indirectly
   *         as system clock (if the Clock Security System CSS is enabled).
   *
   * @note   A switch from one clock source to another occurs only if the target
@@ -908,7 +967,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
       }
     }
   }
-  
+
   /* Decreasing the number of wait states because of lower CPU frequency */
   if(FLatency < (FLASH->ACR & FLASH_ACR_LATENCY))
   {
@@ -922,7 +981,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
       return HAL_ERROR;
     }
   }
-  
+
   /*-------------------------- PCLK1 Configuration ---------------------------*/
   if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK1)
   {
@@ -950,7 +1009,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   * @}
   */
 
-/** @defgroup RCC_Exported_Functions_Group2 Peripheral Control functions 
+/** @defgroup RCC_Exported_Functions_Group2 Peripheral Control functions
  *  @brief   RCC clocks control functions
  *
 @verbatim
@@ -959,7 +1018,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
  ===============================================================================
     [..]
     This subsection provides a set of functions allowing to:
-    
+
     (+) Ouput clock to MCO pin.
     (+) Retrieve current clock frequencies.
     (+) Enable the Clock Security System.
@@ -984,6 +1043,9 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   *            @arg @ref RCC_MCO1SOURCE_PLLCLK  main PLL clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_LSI  LSI clock selected as MCO source
   *            @arg @ref RCC_MCO1SOURCE_LSE  LSE clock selected as MCO source
+  @if STM32L443xx
+  *            @arg @ref RCC_MCO1SOURCE_HSI48  HSI48 clock selected as MCO source for devices with HSI48
+  @endif
   * @param  RCC_MCODiv  specifies the MCO prescaler.
   *          This parameter can be one of the following values:
   *            @arg @ref RCC_MCODIV_1  no division applied to MCO clock
@@ -1169,8 +1231,13 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   assert_param(RCC_OscInitStruct != NULL);
 
   /* Set all possible values for the Oscillator type parameter ---------------*/
+#if defined(RCC_HSI48_SUPPORT)
+  RCC_OscInitStruct->OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_MSI | \
+                                      RCC_OSCILLATORTYPE_LSE | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSI48;
+#else
   RCC_OscInitStruct->OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_MSI | \
                                       RCC_OSCILLATORTYPE_LSE | RCC_OSCILLATORTYPE_LSI;
+#endif /* RCC_HSI48_SUPPORT */
 
   /* Get the HSE configuration -----------------------------------------------*/
   if((RCC->CR & RCC_CR_HSEBYP) == RCC_CR_HSEBYP)
@@ -1196,7 +1263,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->MSIState = RCC_MSI_OFF;
   }
 
-  RCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->CR & RCC_ICSCR_MSITRIM) >> POSITION_VAL(RCC_ICSCR_MSITRIM));
+  RCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->ICSCR & RCC_ICSCR_MSITRIM) >> POSITION_VAL(RCC_ICSCR_MSITRIM));
   RCC_OscInitStruct->MSIClockRange = (uint32_t)((RCC->CR & RCC_CR_MSIRANGE) );
 
   /* Get the HSI configuration -----------------------------------------------*/
@@ -1235,6 +1302,20 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->LSIState = RCC_LSI_OFF;
   }
 
+#if defined(RCC_HSI48_SUPPORT)
+  /* Get the HSI48 configuration ---------------------------------------------*/
+  if((RCC->CRRCR & RCC_CRRCR_HSI48ON) == RCC_CRRCR_HSI48ON)
+  {
+    RCC_OscInitStruct->HSI48State = RCC_HSI48_ON;
+  }
+  else
+  {
+    RCC_OscInitStruct->HSI48State = RCC_HSI48_OFF;
+  }
+#else
+  RCC_OscInitStruct->HSI48State = RCC_HSI48_OFF;
+#endif /* RCC_HSI48_SUPPORT */
+
   /* Get the PLL configuration -----------------------------------------------*/
   if((RCC->CR & RCC_CR_PLLON) == RCC_CR_PLLON)
   {
@@ -1249,6 +1330,9 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   RCC_OscInitStruct->PLL.PLLN = (uint32_t)((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> POSITION_VAL(RCC_PLLCFGR_PLLN));
   RCC_OscInitStruct->PLL.PLLQ = (uint32_t)((((RCC->PLLCFGR & RCC_PLLCFGR_PLLQ) >> POSITION_VAL(RCC_PLLCFGR_PLLQ)) + 1U) << 1U);
   RCC_OscInitStruct->PLL.PLLR = (uint32_t)((((RCC->PLLCFGR & RCC_PLLCFGR_PLLR) >> POSITION_VAL(RCC_PLLCFGR_PLLR)) + 1U) << 1U);
+#if defined(RCC_PLLP_DIV_2_31_SUPPORT)
+  RCC_OscInitStruct->PLL.PLLP = (uint32_t)((RCC->PLLCFGR & RCC_PLLCFGR_PLLPDIV) >> POSITION_VAL(RCC_PLLCFGR_PLLPDIV));
+#else
   if((RCC->PLLCFGR & RCC_PLLCFGR_PLLP) != RESET)
   {
     RCC_OscInitStruct->PLL.PLLP = RCC_PLLP_DIV17;
@@ -1257,6 +1341,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   {
     RCC_OscInitStruct->PLL.PLLP = RCC_PLLP_DIV7;
   }
+#endif /* RCC_PLLP_DIV_2_31_SUPPORT */
 }
 
 /**
@@ -1349,7 +1434,7 @@ __weak void HAL_RCC_CSSCallback(void)
   * @{
   */
 /**
-  * @brief  Update number of Flash wait states in line with MSI range and current 
+  * @brief  Update number of Flash wait states in line with MSI range and current
             voltage range.
   * @param  msirange  MSI range value from RCC_MSIRANGE_0 to RCC_MSIRANGE_11
   * @retval HAL status
@@ -1358,7 +1443,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
 {
   uint32_t vos = 0;
   uint32_t latency = FLASH_LATENCY_0;  /* default value 0WS */
-  
+
   if(__HAL_RCC_PWR_IS_CLK_ENABLED())
   {
     vos = HAL_PWREx_GetVoltageRange();
@@ -1369,7 +1454,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
     vos = HAL_PWREx_GetVoltageRange();
     __HAL_RCC_PWR_CLK_DISABLE();
   }
-  
+
   if(vos == PWR_REGULATOR_VOLTAGE_SCALE1)
   {
     if(msirange > RCC_MSIRANGE_8)
@@ -1402,7 +1487,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
         /* MSI 16Mhz */
         latency = FLASH_LATENCY_2; /* 2WS */
       }
-      else if(msirange == RCC_MSIRANGE_7) 
+      else if(msirange == RCC_MSIRANGE_7)
       {
         /* MSI 8Mhz */
         latency = FLASH_LATENCY_1; /* 1WS */
@@ -1410,16 +1495,16 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
       /* else MSI < 8Mhz default FLASH_LATENCY_0 0WS */
     }
   }
-       
+
   __HAL_FLASH_SET_LATENCY(latency);
-  
+
   /* Check that the new number of wait states is taken into account to access the Flash
      memory by reading the FLASH_ACR register */
   if((FLASH->ACR & FLASH_ACR_LATENCY) != latency)
   {
     return HAL_ERROR;
   }
-  
+
   return HAL_OK;
 }
 

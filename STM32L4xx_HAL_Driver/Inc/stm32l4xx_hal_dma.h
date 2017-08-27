@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    29-January-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -55,6 +55,7 @@
   */
 
 /* Exported types ------------------------------------------------------------*/
+
 /** @defgroup DMA_Exported_Types DMA Exported Types
   * @{
   */
@@ -93,26 +94,14 @@ typedef struct
 } DMA_InitTypeDef;
 
 /**
-  * @brief DMA Configuration enumeration values definition
-  */
-typedef enum
-{
-  DMA_MODE            = 0,      /*!< Control related DMA mode Parameter in DMA_InitTypeDef        */
-  DMA_PRIORITY        = 1       /*!< Control related priority level Parameter in DMA_InitTypeDef  */
-
-} DMA_ControlTypeDef;
-
-/**
   * @brief  HAL DMA State structures definition
   */
 typedef enum
 {
   HAL_DMA_STATE_RESET             = 0x00,  /*!< DMA not yet initialized or disabled    */
-  HAL_DMA_STATE_READY             = 0x01,  /*!< DMA process success and ready for use  */
-  HAL_DMA_STATE_READY_HALF        = 0x11,  /*!< DMA Half process success               */
+  HAL_DMA_STATE_READY             = 0x01,  /*!< DMA initialized and ready for use      */
   HAL_DMA_STATE_BUSY              = 0x02,  /*!< DMA process is ongoing                 */
-  HAL_DMA_STATE_TIMEOUT           = 0x03,  /*!< DMA timeout state                      */
-  HAL_DMA_STATE_ERROR             = 0x04   /*!< DMA error state                        */
+  HAL_DMA_STATE_TIMEOUT           = 0x03,  /*!< DMA timeout state                     */
 }HAL_DMA_StateTypeDef;
 
 /**
@@ -124,20 +113,34 @@ typedef enum
   HAL_DMA_HALF_TRANSFER      = 0x01     /*!< Half Transfer     */
 }HAL_DMA_LevelCompleteTypeDef;
 
+
+/**
+  * @brief  HAL DMA Callback ID structure definition
+  */
+typedef enum
+{
+  HAL_DMA_XFER_CPLT_CB_ID          = 0x00,    /*!< Full transfer     */
+  HAL_DMA_XFER_HALFCPLT_CB_ID      = 0x01,    /*!< Half transfer     */
+  HAL_DMA_XFER_ERROR_CB_ID         = 0x02,    /*!< Error             */
+  HAL_DMA_XFER_ABORT_CB_ID         = 0x03,    /*!< Abort             */
+  HAL_DMA_XFER_ALL_CB_ID           = 0x04     /*!< All               */
+
+}HAL_DMA_CallbackIDTypeDef;
+
 /**
   * @brief  DMA handle Structure definition
   */
 typedef struct __DMA_HandleTypeDef
 {
-  DMA_Channel_TypeDef    *Instance;                                                /*!< Register base address                  */
-                                                                                
-  DMA_InitTypeDef       Init;                                                      /*!< DMA communication parameters           */
-                                                                                
-  HAL_LockTypeDef       Lock;                                                      /*!< DMA locking object                     */
-                                                                                
-  __IO HAL_DMA_StateTypeDef  State;                                                /*!< DMA transfer state                     */
-                                                                                
-  void                  *Parent;                                                   /*!< Parent object state                    */
+  DMA_Channel_TypeDef    *Instance;                                                  /*!< Register base address                */
+
+  DMA_InitTypeDef       Init;                                                        /*!< DMA communication parameters         */
+
+  HAL_LockTypeDef       Lock;                                                        /*!< DMA locking object                   */
+
+  __IO HAL_DMA_StateTypeDef  State;                                                  /*!< DMA transfer state                   */
+
+  void                  *Parent;                                                     /*!< Parent object state                  */
 
   void                  (* XferCpltCallback)(struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback       */
 
@@ -145,9 +148,14 @@ typedef struct __DMA_HandleTypeDef
 
   void                  (* XferErrorCallback)(struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback          */
 
-  __IO uint32_t          ErrorCode;                                                /*!< DMA Error code                         */
-}DMA_HandleTypeDef;
+  void                  (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);   /*!< DMA transfer abort callback          */
 
+  __IO uint32_t          ErrorCode;                                                  /*!< DMA Error code                       */
+
+  DMA_TypeDef            *DmaBaseAddress;                                            /*!< DMA Channel Base Address             */
+
+  uint32_t               ChannelIndex;                                               /*!< DMA Channel Index                    */
+}DMA_HandleTypeDef;
 /**
   * @}
   */
@@ -161,9 +169,11 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Error_Code DMA Error Code
   * @{
   */
-#define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error             */
-#define HAL_DMA_ERROR_TE        ((uint32_t)0x00000001)    /*!< Transfer error       */
-#define HAL_DMA_ERROR_TIMEOUT   ((uint32_t)0x00000020)    /*!< Timeout error        */
+#define HAL_DMA_ERROR_NONE          ((uint32_t)0x00000000)    /*!< No error                              */
+#define HAL_DMA_ERROR_TE            ((uint32_t)0x00000001)    /*!< Transfer error                        */
+#define HAL_DMA_ERROR_NO_XFER       ((uint32_t)0x00000004)    /*!< no ongoing transfer                   */
+#define HAL_DMA_ERROR_TIMEOUT       ((uint32_t)0x00000020)    /*!< Timeout error                         */
+#define HAL_DMA_ERROR_NOT_SUPPORTED ((uint32_t)0x00000100)    /*!< Not supported mode                    */
 /**
   * @}
   */
@@ -415,11 +425,11 @@ typedef struct __DMA_HandleTypeDef
   * @param  __HANDLE__: DMA handle
   * @param  __FLAG__: Get the specified flag.
   *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCIFx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTIFx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEIFx:  Transfer error flag
-  *            @arg DMA_ISR_GIFx: Global interrupt flag
-  *         Where x can be 0_4, 1_5, 2_6 or 3_7 to select the DMA Channel flag.
+  *            @arg DMA_FLAG_TCx:  Transfer complete flag
+  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
+  *            @arg DMA_FLAG_TEx:  Transfer error flag
+  *            @arg DMA_FLAG_GLx:  Global interrupt flag
+  *         Where x can be from 1 to 7 to select the DMA Channel x flag.
   * @retval The state of FLAG (SET or RESET).
   */
 #define __HAL_DMA_GET_FLAG(__HANDLE__, __FLAG__) (((uint32_t)((__HANDLE__)->Instance) > ((uint32_t)DMA1_Channel7))? \
@@ -430,15 +440,15 @@ typedef struct __DMA_HandleTypeDef
   * @param  __HANDLE__: DMA handle
   * @param  __FLAG__: specifies the flag to clear.
   *          This parameter can be any combination of the following values:
-  *            @arg DMA_FLAG_TCIFx:  Transfer complete flag
-  *            @arg DMA_FLAG_HTIFx:  Half transfer complete flag
-  *            @arg DMA_FLAG_TEIFx:  Transfer error flag
-  *            @arg DMA_ISR_GIFx: Global interrupt flag
-  *         Where x can be 0_4, 1_5, 2_6 or 3_7 to select the DMA Channel flag.
+  *            @arg DMA_FLAG_TCx:  Transfer complete flag
+  *            @arg DMA_FLAG_HTx:  Half transfer complete flag
+  *            @arg DMA_FLAG_TEx:  Transfer error flag
+  *            @arg DMA_FLAG_GLx:  Global interrupt flag
+  *         Where x can be from 1 to 7 to select the DMA Channel x flag.
   * @retval None
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (((uint32_t)((__HANDLE__)->Instance) > ((uint32_t)DMA1_Channel7))? \
- (DMA2->IFCR |= (__FLAG__)) : (DMA1->IFCR |= (__FLAG__)))
+ (DMA2->IFCR = (__FLAG__)) : (DMA1->IFCR = (__FLAG__)))
 
 /**
   * @brief  Enable the specified DMA Channel interrupts.
@@ -477,6 +487,13 @@ typedef struct __DMA_HandleTypeDef
 #define __HAL_DMA_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)  (((__HANDLE__)->Instance->CCR & (__INTERRUPT__)))
 
 /**
+  * @brief  Return the number of remaining data units in the current DMA Channel transfer.
+  * @param  __HANDLE__: DMA handle
+  * @retval The number of remaining data units in the current DMA Channel transfer.
+  */
+#define __HAL_DMA_GET_COUNTER(__HANDLE__) ((__HANDLE__)->Instance->CNDTR)
+
+/**
   * @}
   */
 
@@ -503,8 +520,12 @@ HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID, void (* pCallback)( DMA_HandleTypeDef * _hdma));
+HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID);
+
 /**
   * @}
   */
@@ -567,7 +588,7 @@ uint32_t             HAL_DMA_GetError(DMA_HandleTypeDef *hdma);
 
 /**
   * @}
-  */ 
+  */
 
 /* Private functions ---------------------------------------------------------*/
 

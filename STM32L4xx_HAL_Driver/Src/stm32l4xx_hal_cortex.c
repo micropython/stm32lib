@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    29-January-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the CORTEX:
@@ -69,7 +69,7 @@
 
   The table below gives the allowed values of the pre-emption priority and subpriority according
   to the Priority Grouping configuration performed by HAL_NVIC_SetPriorityGrouping() function.
-  
+
     ==========================================================================================================================
       NVIC_PriorityGroup   | NVIC_IRQChannelPreemptionPriority | NVIC_IRQChannelSubPriority  |       Description
     ==========================================================================================================================
@@ -78,21 +78,21 @@
     --------------------------------------------------------------------------------------------------------------------------
      NVIC_PRIORITYGROUP_1  |                0-1                |            0-7              | 1 bit for pre-emption priority
                            |                                   |                             | 3 bits for subpriority
-    --------------------------------------------------------------------------------------------------------------------------    
+    --------------------------------------------------------------------------------------------------------------------------
      NVIC_PRIORITYGROUP_2  |                0-3                |            0-3              | 2 bits for pre-emption priority
                            |                                   |                             | 2 bits for subpriority
-    --------------------------------------------------------------------------------------------------------------------------    
+    --------------------------------------------------------------------------------------------------------------------------
      NVIC_PRIORITYGROUP_3  |                0-7                |            0-1              | 3 bits for pre-emption priority
                            |                                   |                             | 1 bit for subpriority
-    --------------------------------------------------------------------------------------------------------------------------    
+    --------------------------------------------------------------------------------------------------------------------------
      NVIC_PRIORITYGROUP_4  |                0-15               |            0                | 4 bits for pre-emption priority
-                           |                                   |                             | 0 bit for subpriority                       
+                           |                                   |                             | 0 bit for subpriority
     ==========================================================================================================================
 
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -227,7 +227,7 @@ void HAL_NVIC_EnableIRQ(IRQn_Type IRQn)
 {
   /* Check the parameters */
   assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
-  
+
   /* Enable interrupt */
   NVIC_EnableIRQ(IRQn);
 }
@@ -243,7 +243,7 @@ void HAL_NVIC_DisableIRQ(IRQn_Type IRQn)
 {
   /* Check the parameters */
   assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
-  
+
   /* Disable interrupt */
   NVIC_DisableIRQ(IRQn);
 }
@@ -259,7 +259,7 @@ void HAL_NVIC_SystemReset(void)
 }
 
 /**
-  * @brief  Initialize the System Timer with interrupt enabled and start the System Tick Timer (SysTick): 
+  * @brief  Initialize the System Timer with interrupt enabled and start the System Tick Timer (SysTick):
   *         Counter is in free running mode to generate periodic interrupts.
   * @param  TicksNumb: Specifies the ticks Number of ticks between two interrupts.
   * @retval status:  - 0  Function succeeded.
