@@ -47,7 +47,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "Legacy/stm32_hal_legacy.h"
-#include <stdio.h>
+
+// instead of including stdio.h
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
 
 /* Exported types ------------------------------------------------------------*/
 
