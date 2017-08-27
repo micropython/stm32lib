@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c.c
   * @author  MCD Application Team
-  * @version V1.5.2
-  * @date    22-September-2016
+  * @version V1.6.0
+  * @date    04-November-2016
   * @brief   I2C HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
@@ -5170,17 +5170,21 @@ static void I2C_DMAError(DMA_HandleTypeDef *hdma)
 {
   I2C_HandleTypeDef* hi2c = (I2C_HandleTypeDef*)((DMA_HandleTypeDef*)hdma)->Parent;
 
-  /* Disable Acknowledge */
-  hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
+  /* Ignore DMA FIFO error */
+  if(HAL_DMA_GetError(hdma) != HAL_DMA_ERROR_FE)
+  {
+    /* Disable Acknowledge */
+    hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
 
-  hi2c->XferCount = 0U;
+    hi2c->XferCount = 0U;
 
-  hi2c->State = HAL_I2C_STATE_READY;
-  hi2c->Mode = HAL_I2C_MODE_NONE;
+    hi2c->State = HAL_I2C_STATE_READY;
+    hi2c->Mode = HAL_I2C_MODE_NONE;
 
-  hi2c->ErrorCode |= HAL_I2C_ERROR_DMA;
+    hi2c->ErrorCode |= HAL_I2C_ERROR_DMA;
 
-  HAL_I2C_ErrorCallback(hi2c);
+    HAL_I2C_ErrorCallback(hi2c);
+  }
 }
 
 /**
