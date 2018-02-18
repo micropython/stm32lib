@@ -35,7 +35,8 @@ files before committing them here:
 A shell function to do this processing is:
 ```sh
 function clean_code() {
-    cat $1 | awk "{sub(/[\t ]*\r/,\"\")}1" | expand -t 4 | tr \\200\\221\\222\\223\\224\\226\\231\\265\\327\\342 \'\'\'\"\"-\'ux\' > tmp$$
+    chmod 644 $1
+    cat $1 | awk "{sub(/[\t ]*\r/,\"\")}1" | expand -t 4 | tr \\200\\205\\211\\221\\222\\223\\224\\226\\231\\244\\261\\265\\302\\327\\342 \'??\'\'\"\"\\-\'??u?x\' > tmp$$
     mv tmp$$ $1
 }
 ```
