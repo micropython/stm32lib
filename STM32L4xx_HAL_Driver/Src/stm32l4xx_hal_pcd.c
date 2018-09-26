@@ -2160,6 +2160,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
     return HAL_ERROR;
   }
 
+  #if 0
   len = ep->xfer_len - ep->xfer_count;
 
   if (len > ep->maxpacket)
@@ -2186,6 +2187,36 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
     ep->xfer_buff  += len;
     ep->xfer_count += len;
   }
+
+  #else
+  /* dpgeorge: modified above loop to:
+   *    - recompute len32b before each check of this value against FIFO free space
+   */
+  for (;;)
+  {
+    len = ep->xfer_len - ep->xfer_count;
+    if (len <= 0U)
+    {
+      /* Finished sending all data */
+      break;
+    }
+    if (len > ep->maxpacket)
+    {
+      len = ep->maxpacket;
+    }
+
+    len32b = (len + 3U) / 4U;
+    if  (len32b > (USBx_INEP(epnum)->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV))
+    {
+      /* No room left in FIFO */
+      break;
+    }
+
+    USB_WritePacket(USBx, ep->xfer_buff, epnum, len);
+    ep->xfer_buff  += len;
+    ep->xfer_count += len;
+  }
+  #endif
 
   if (ep->xfer_len <= ep->xfer_count)
   {
