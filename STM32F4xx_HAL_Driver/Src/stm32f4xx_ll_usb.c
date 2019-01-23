@@ -58,6 +58,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
+#if defined ( __GNUC__ )
+/* In this file __packed is used to signify an unaligned pointer,
+   which GCC doesn't support, so disable it. */
+#undef __packed
+#define __packed
+#endif /* __GNUC__ */
+
 /** @addtogroup STM32F4xx_LL_USB_DRIVER
   * @{
   */
