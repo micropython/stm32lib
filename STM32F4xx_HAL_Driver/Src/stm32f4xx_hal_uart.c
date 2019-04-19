@@ -2486,7 +2486,17 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
   if(huart->Init.OverSampling == UART_OVERSAMPLING_8)
   {
     /*-------------------------- USART BRR Configuration ---------------------*/
-#if defined(USART6)
+#if defined(UART10)
+    if((huart->Instance == USART1) || (huart->Instance == USART6) || (huart->Instance == UART9) || (huart->Instance == UART10))
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
+    }
+#elif defined(UART9)
+    if((huart->Instance == USART1) || (huart->Instance == USART6) || (huart->Instance == UART9))
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
+    }
+#elif defined(USART6)
     if((huart->Instance == USART1) || (huart->Instance == USART6))
     {
       huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
@@ -2496,7 +2506,7 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
     {
       huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
     }
-#endif /* USART6 */
+#endif /* USART6 UART9 UART10 */
     else
     {
       huart->Instance->BRR = UART_BRR_SAMPLING8(HAL_RCC_GetPCLK1Freq(), huart->Init.BaudRate);
@@ -2505,7 +2515,17 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
   else
   {
     /*-------------------------- USART BRR Configuration ---------------------*/
-#if defined(USART6)
+#if defined(UART10)
+    if((huart->Instance == USART1) || (huart->Instance == USART6) || (huart->Instance == UART9) || (huart->Instance == UART10))
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
+    }
+#elif defined(UART9)
+    if((huart->Instance == USART1) || (huart->Instance == USART6) || (huart->Instance == UART9))
+    {
+      huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
+    }
+#elif defined(USART6)
     if((huart->Instance == USART1) || (huart->Instance == USART6))
     {
       huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
@@ -2515,7 +2535,7 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
     {
       huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate);
     }
-#endif /* USART6 */
+#endif /* USART6 UART9 UART10 */
     else
     {
       huart->Instance->BRR = UART_BRR_SAMPLING16(HAL_RCC_GetPCLK1Freq(), huart->Init.BaudRate);
