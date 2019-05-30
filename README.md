@@ -1,10 +1,10 @@
-STM32 Cube library - CMSIS and HAL for F0, F4, F7, H7 and L4 microcontrollers
-=============================================================================
+STM32 Cube library - CMSIS and HAL for F0, F4, F7, H7, L0 and L4 microcontrollers
+=================================================================================
 
 This repository contains a copy of STMicroelectronic's STM32 Cube firmware
 library, with CMSIS-device and HAL code for STM32F0xx, STM32F4xx, STM32F7xx,
-STM32H7xx and STM32L4xx microcontrollers.  Minor changes are applied to the
-HAL source to support MicroPython's port to the STM32.
+STM32H7xx, STM32L0xx and STM32L4xx microcontrollers.  Minor changes are
+applied to the HAL source to support MicroPython's port to the STM32.
 
 The "vendor" branch contains the original sources and is updated from
 time-to-time when new versions become available.  The upstream sources are
@@ -39,6 +39,7 @@ function clean_code() {
     cat $1 | awk "{sub(/[\t ]*\r/,\"\")}1" | expand -t 4 | tr \\200\\205\\211\\221\\222\\223\\224\\226\\231\\244\\261\\265\\302\\327\\342 \'??\'\'\"\"\\-\'??u?x\' > tmp$$
     mv tmp$$ $1
 }
+find path -type f | while read file; do echo "$file"; clean_code "$file"; done
 ```
 
 Directories from the original sources are mapped into this repository according
