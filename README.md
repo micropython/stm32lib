@@ -47,5 +47,6 @@ to the following:
 Drivers/STM32F4xx_HAL_Driver/Inc ->          STM32F4xx_HAL_Driver/Inc
 Drivers/STM32F4xx_HAL_Driver/Src ->          STM32F4xx_HAL_Driver/Src
 Drivers/CMSIS/Device/ST/STM32F4xx/Include -> CMSIS/STM32F4xx/Include
+Drivers/CMSIS/Device/ST/STM32F4xx/Source  -> CMSIS/STM32F4xx/Source
 ```
 And similar for the other microcontroller classes.
