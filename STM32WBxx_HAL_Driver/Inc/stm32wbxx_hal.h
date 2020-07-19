@@ -38,21 +38,24 @@
   * @{
   */
 
-/* Exported constants --------------------------------------------------------*/
-/** @defgroup HAL_Exported_Constants HAL Exported Constants
-  * @{
-  */
-
 /** @defgroup HAL_TICK_FREQ Tick Frequency
   * @{
   */
-#define  HAL_TICK_FREQ_10HZ         100U
-#define  HAL_TICK_FREQ_100HZ        10U
-#define  HAL_TICK_FREQ_1KHZ         1U
-#define  HAL_TICK_FREQ_DEFAULT      HAL_TICK_FREQ_1KHZ
+typedef enum
+{
+  HAL_TICK_FREQ_10HZ         = 100U,
+  HAL_TICK_FREQ_100HZ        = 10U,
+  HAL_TICK_FREQ_1KHZ         = 1U,
+  HAL_TICK_FREQ_DEFAULT      = HAL_TICK_FREQ_1KHZ
+} HAL_TickFreqTypeDef;
 
 /**
   * @}
+  */
+
+/* Exported constants --------------------------------------------------------*/
+/** @defgroup HAL_Exported_Constants HAL Exported Constants
+  * @{
   */
 
 /** @defgroup SYSCFG_Exported_Constants SYSCFG Exported Constants
@@ -65,7 +68,9 @@
 #define SYSCFG_BOOT_MAINFLASH           LL_SYSCFG_REMAP_FLASH           /*!< Main Flash memory mapped at 0x00000000   */
 #define SYSCFG_BOOT_SYSTEMFLASH         LL_SYSCFG_REMAP_SYSTEMFLASH     /*!< System Flash memory mapped at 0x00000000 */
 #define SYSCFG_BOOT_SRAM                LL_SYSCFG_REMAP_SRAM            /*!< SRAM1 mapped at 0x00000000               */
+#if defined(LL_SYSCFG_REMAP_QUADSPI)
 #define SYSCFG_BOOT_QUADSPI             LL_SYSCFG_REMAP_QUADSPI         /*!< QUADSPI memory mapped at 0x00000000      */
+#endif
 /**
   * @}
   */
@@ -215,7 +220,9 @@
 /** @defgroup Secure_IP_Write_Access Secure IP Write Access
   * @{
   */
+#if defined(LL_SYSCFG_SECURE_ACCESS_AES1)
 #define HAL_SYSCFG_SECURE_ACCESS_AES1   LL_SYSCFG_SECURE_ACCESS_AES1    /*!< Enabling the security access of Advanced Encryption Standard 1 KEY[7:0] */
+#endif
 #define HAL_SYSCFG_SECURE_ACCESS_AES2   LL_SYSCFG_SECURE_ACCESS_AES2    /*!< Enabling the security access of Advanced Encryption Standard 2          */
 #define HAL_SYSCFG_SECURE_ACCESS_PKA    LL_SYSCFG_SECURE_ACCESS_PKA     /*!< Enabling the security access of Public Key Accelerator                  */
 #define HAL_SYSCFG_SECURE_ACCESS_RNG    LL_SYSCFG_SECURE_ACCESS_RNG     /*!< Enabling the security access of Random Number Generator                 */
@@ -382,9 +389,11 @@
   */
 #define __HAL_SYSCFG_REMAPMEMORY_SRAM()         LL_SYSCFG_SetRemapMemory(LL_SYSCFG_REMAP_SRAM)
 
+#if defined(LL_SYSCFG_REMAP_QUADSPI)
 /** @brief  QUADSPI mapped at 0x00000000.
   */
 #define __HAL_SYSCFG_REMAPMEMORY_QUADSPI()      LL_SYSCFG_SetRemapMemory(LL_SYSCFG_REMAP_QUADSPI)
+#endif
 
 /**
   * @brief  Return the boot mode as configured by user.
@@ -393,7 +402,9 @@
   *           @arg @ref SYSCFG_BOOT_MAINFLASH
   *           @arg @ref SYSCFG_BOOT_SYSTEMFLASH
   *           @arg @ref SYSCFG_BOOT_SRAM
+#if defined(LL_SYSCFG_REMAP_QUADSPI)
   *           @arg @ref SYSCFG_BOOT_QUADSPI
+#endif
   */
 #define __HAL_SYSCFG_GET_BOOT_MODE()            LL_SYSCFG_GetRemapMemory()
 
@@ -510,6 +521,7 @@
 
 #define IS_SYSCFG_SRAM2WRP_PAGE(__PAGE__)               (((__PAGE__) > 0U) && ((__PAGE__) <= 0xFFFFFFFFU))
 
+#if defined(VREFBUF)
 #define IS_SYSCFG_VREFBUF_VOLTAGE_SCALE(__SCALE__)      (((__SCALE__) == SYSCFG_VREFBUF_VOLTAGE_SCALE0) || \
                                                          ((__SCALE__) == SYSCFG_VREFBUF_VOLTAGE_SCALE1))
 
@@ -517,16 +529,23 @@
                                                          ((__VALUE__) == SYSCFG_VREFBUF_HIGH_IMPEDANCE_ENABLE))
 
 #define IS_SYSCFG_VREFBUF_TRIMMING(__VALUE__)           (((__VALUE__) > 0U) && ((__VALUE__) <= VREFBUF_CCR_TRIM))
+#endif
 
 #define IS_SYSCFG_FASTMODEPLUS(__PIN__)                 ((((__PIN__) & SYSCFG_FASTMODEPLUS_PB6)  == SYSCFG_FASTMODEPLUS_PB6)  || \
                                                          (((__PIN__) & SYSCFG_FASTMODEPLUS_PB7)  == SYSCFG_FASTMODEPLUS_PB7)  || \
                                                          (((__PIN__) & SYSCFG_FASTMODEPLUS_PB8)  == SYSCFG_FASTMODEPLUS_PB8)  || \
                                                          (((__PIN__) & SYSCFG_FASTMODEPLUS_PB9)  == SYSCFG_FASTMODEPLUS_PB9))
 
+#if defined(LL_SYSCFG_SECURE_ACCESS_AES1)
 #define IS_SYSCFG_SECURITY_ACCESS(__VALUE__)            ((((__VALUE__) & HAL_SYSCFG_SECURE_ACCESS_AES1)  == HAL_SYSCFG_SECURE_ACCESS_AES1)  || \
                                                          (((__VALUE__) & HAL_SYSCFG_SECURE_ACCESS_AES2)  == HAL_SYSCFG_SECURE_ACCESS_AES2)  || \
                                                          (((__VALUE__) & HAL_SYSCFG_SECURE_ACCESS_PKA)   == HAL_SYSCFG_SECURE_ACCESS_PKA)   || \
                                                          (((__VALUE__) & HAL_SYSCFG_SECURE_ACCESS_RNG)   == HAL_SYSCFG_SECURE_ACCESS_RNG))
+#else
+#define IS_SYSCFG_SECURITY_ACCESS(__VALUE__)            ((((__VALUE__) & HAL_SYSCFG_SECURE_ACCESS_AES2)  == HAL_SYSCFG_SECURE_ACCESS_AES2)  || \
+                                                         (((__VALUE__) & HAL_SYSCFG_SECURE_ACCESS_PKA)   == HAL_SYSCFG_SECURE_ACCESS_PKA)   || \
+                                                         (((__VALUE__) & HAL_SYSCFG_SECURE_ACCESS_RNG)   == HAL_SYSCFG_SECURE_ACCESS_RNG))
+#endif
 
 /**
   * @}
@@ -578,8 +597,8 @@ void HAL_IncTick(void);
 void HAL_Delay(uint32_t Delay);
 uint32_t HAL_GetTick(void);
 uint32_t HAL_GetTickPrio(void);
-HAL_StatusTypeDef HAL_SetTickFreq(uint32_t Freq);
-uint32_t HAL_GetTickFreq(void);
+HAL_StatusTypeDef HAL_SetTickFreq(HAL_TickFreqTypeDef Freq);
+HAL_TickFreqTypeDef HAL_GetTickFreq(void);
 void HAL_SuspendTick(void);
 void HAL_ResumeTick(void);
 uint32_t HAL_GetHalVersion(void);
@@ -614,7 +633,7 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void);
   */
 extern __IO uint32_t uwTick;
 extern uint32_t uwTickPrio;
-extern uint32_t uwTickFreq;
+extern HAL_TickFreqTypeDef uwTickFreq;
 /**
   * @}
   */
@@ -628,11 +647,13 @@ void HAL_SYSCFG_SRAM2Erase(void);
 void HAL_SYSCFG_DisableSRAMFetch(void);
 uint32_t HAL_SYSCFG_IsEnabledSRAMFetch(void);
 
+#if defined(VREFBUF)
 void HAL_SYSCFG_VREFBUF_VoltageScalingConfig(uint32_t VoltageScaling);
 void HAL_SYSCFG_VREFBUF_HighImpedanceConfig(uint32_t Mode);
 void HAL_SYSCFG_VREFBUF_TrimmingConfig(uint32_t TrimmingValue);
 HAL_StatusTypeDef HAL_SYSCFG_EnableVREFBUF(void);
 void HAL_SYSCFG_DisableVREFBUF(void);
+#endif
 
 void HAL_SYSCFG_EnableIOBooster(void);
 void HAL_SYSCFG_DisableIOBooster(void);

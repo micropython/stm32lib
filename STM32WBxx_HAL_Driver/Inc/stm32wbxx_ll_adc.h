@@ -145,10 +145,10 @@ extern "C" {
 /* Mask containing trigger source masks for each of possible                  */
 /* trigger edge selection duplicated with shifts [0; 4; 8; 12]                */
 /* corresponding to {SW start; ext trigger; ext trigger; ext trigger}.        */
-#define ADC_INJ_TRIG_SOURCE_MASK            (((LL_ADC_INJ_TRIG_SOFTWARE & ADC_JSQR_JEXTSEL) << (4U * 0UL)) | \
-                                            ((ADC_JSQR_JEXTSEL)                             << (4U * 1UL)) | \
-                                            ((ADC_JSQR_JEXTSEL)                             << (4U * 2UL)) | \
-                                            ((ADC_JSQR_JEXTSEL)                             << (4U * 3UL))  )
+#define ADC_INJ_TRIG_SOURCE_MASK            (((LL_ADC_INJ_TRIG_SOFTWARE & ADC_JSQR_JEXTSEL)  << (4U * 0UL)) | \
+                                             ((ADC_JSQR_JEXTSEL)                             << (4U * 1UL)) | \
+                                             ((ADC_JSQR_JEXTSEL)                             << (4U * 2UL)) | \
+                                             ((ADC_JSQR_JEXTSEL)                             << (4U * 3UL))  )
 
 /* Mask containing trigger edge masks for each of possible                    */
 /* trigger edge selection duplicated with shifts [0; 4; 8; 12]                */
@@ -367,7 +367,7 @@ extern "C" {
   * @retval Pointer to register address
   */
 #define __ADC_PTR_REG_OFFSET(__REG__, __REG_OFFFSET__)                         \
- ((__IO uint32_t *)((uint32_t) ((uint32_t)(&(__REG__)) + ((__REG_OFFFSET__) << 2UL))))
+  ((__IO uint32_t *)((uint32_t) ((uint32_t)(&(__REG__)) + ((__REG_OFFFSET__) << 2UL))))
 
 /**
   * @}
@@ -762,8 +762,8 @@ typedef struct
   */
 
 /** @defgroup ADC_LL_EC_REG_CONTINUOUS_MODE  ADC group regular - Continuous mode
-* @{
-*/
+  * @{
+  */
 #define LL_ADC_REG_CONV_SINGLE             (0x00000000UL)          /*!< ADC conversions are performed in single mode: one conversion per trigger */
 #define LL_ADC_REG_CONV_CONTINUOUS         (ADC_CFGR_CONT)         /*!< ADC conversions are performed in continuous mode: after the first trigger, following conversions launched successively automatically */
 /**
@@ -783,8 +783,8 @@ typedef struct
 
 
 /** @defgroup ADC_LL_EC_REG_OVR_DATA_BEHAVIOR  ADC group regular - Overrun behavior on conversion data
-* @{
-*/
+  * @{
+  */
 #define LL_ADC_REG_OVR_DATA_PRESERVED      (0x00000000UL)         /*!< ADC group regular behavior in case of overrun: data preserved */
 #define LL_ADC_REG_OVR_DATA_OVERWRITTEN    (ADC_CFGR_OVRMOD)      /*!< ADC group regular behavior in case of overrun: data overwritten */
 /**
@@ -878,8 +878,8 @@ typedef struct
   */
 
 /** @defgroup ADC_LL_EC_INJ_TRIG_AUTO  ADC group injected - Automatic trigger mode
-* @{
-*/
+  * @{
+  */
 #define LL_ADC_INJ_TRIG_INDEPENDENT        (0x00000000UL)         /*!< ADC group injected conversion trigger independent. Setting mandatory if ADC group injected injected trigger source is set to an external trigger. */
 #define LL_ADC_INJ_TRIG_FROM_GRP_REGULAR   (ADC_CFGR_JAUTO)       /*!< ADC group injected conversion trigger from ADC group regular. Setting compliant only with group injected trigger source set to SW start, without any further action on  ADC group injected conversion start or stop: in this case, ADC group injected is controlled only from ADC group regular. */
 /**
@@ -1236,13 +1236,13 @@ typedef struct
   */
 #define __LL_ADC_CHANNEL_TO_DECIMAL_NB(__CHANNEL__)                                        \
   ((((__CHANNEL__) & ADC_CHANNEL_ID_BITFIELD_MASK) == 0UL)                                 \
-    ? (                                                                                    \
+   ? (                                                                                     \
        ((__CHANNEL__) & ADC_CHANNEL_ID_NUMBER_MASK) >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS \
-      )                                                                                    \
-      :                                                                                    \
-      (                                                                                    \
+     )                                                                                     \
+   :                                                                                       \
+   (                                                                                       \
        (uint32_t)POSITION_VAL((__CHANNEL__))                                               \
-      )                                                                                    \
+   )                                                                                       \
   )
 
 /**
@@ -1272,7 +1272,7 @@ typedef struct
   *         @arg @ref LL_ADC_CHANNEL_16
   *         @arg @ref LL_ADC_CHANNEL_17
   *         @arg @ref LL_ADC_CHANNEL_18
-  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (1)
+  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (4)
   *         @arg @ref LL_ADC_CHANNEL_TEMPSENSOR   (4)
   *         @arg @ref LL_ADC_CHANNEL_VBAT         (4)
   *
@@ -1284,17 +1284,17 @@ typedef struct
   */
 #define __LL_ADC_DECIMAL_NB_TO_CHANNEL(__DECIMAL_NB__)                                                  \
   (((__DECIMAL_NB__) <= 9UL)                                                                            \
-    ? (                                                                                                 \
+   ? (                                                                                                  \
        ((__DECIMAL_NB__) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS)                             |          \
        (ADC_AWD2CR_AWD2CH_0 << (__DECIMAL_NB__))                                             |          \
        (ADC_SMPR1_REGOFFSET | (((3UL * (__DECIMAL_NB__))) << ADC_CHANNEL_SMPx_BITOFFSET_POS))           \
-      )                                                                                                 \
-      :                                                                                                 \
-      (                                                                                                 \
+     )                                                                                                  \
+   :                                                                                                    \
+   (                                                                                                    \
        ((__DECIMAL_NB__) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS)                                      | \
        (ADC_AWD2CR_AWD2CH_0 << (__DECIMAL_NB__))                                                      | \
        (ADC_SMPR2_REGOFFSET | (((3UL * ((__DECIMAL_NB__) - 10UL))) << ADC_CHANNEL_SMPx_BITOFFSET_POS))  \
-      )                                                                                                 \
+   )                                                                                                    \
   )
 
 /**
@@ -1466,7 +1466,7 @@ typedef struct
   *         @arg @ref LL_ADC_CHANNEL_16
   *         @arg @ref LL_ADC_CHANNEL_17
   *         @arg @ref LL_ADC_CHANNEL_18
-  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (1)
+  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (4)
   *         @arg @ref LL_ADC_CHANNEL_TEMPSENSOR   (4)
   *         @arg @ref LL_ADC_CHANNEL_VBAT         (4)
   *
@@ -1555,12 +1555,12 @@ typedef struct
   */
 #define __LL_ADC_ANALOGWD_CHANNEL_GROUP(__CHANNEL__, __GROUP__)                                           \
   (((__GROUP__) == LL_ADC_GROUP_REGULAR)                                                                  \
-    ? (((__CHANNEL__) & ADC_CHANNEL_ID_MASK) | ADC_CFGR_AWD1EN | ADC_CFGR_AWD1SGL)                        \
-      :                                                                                                   \
-      ((__GROUP__) == LL_ADC_GROUP_INJECTED)                                                              \
-       ? (((__CHANNEL__) & ADC_CHANNEL_ID_MASK) | ADC_CFGR_JAWD1EN | ADC_CFGR_AWD1SGL)                    \
-         :                                                                                                \
-         (((__CHANNEL__) & ADC_CHANNEL_ID_MASK) | ADC_CFGR_JAWD1EN | ADC_CFGR_AWD1EN | ADC_CFGR_AWD1SGL)  \
+   ? (((__CHANNEL__) & ADC_CHANNEL_ID_MASK) | ADC_CFGR_AWD1EN | ADC_CFGR_AWD1SGL)                         \
+   :                                                                                                      \
+   ((__GROUP__) == LL_ADC_GROUP_INJECTED)                                                                 \
+   ? (((__CHANNEL__) & ADC_CHANNEL_ID_MASK) | ADC_CFGR_JAWD1EN | ADC_CFGR_AWD1SGL)                        \
+   :                                                                                                      \
+   (((__CHANNEL__) & ADC_CHANNEL_ID_MASK) | ADC_CFGR_JAWD1EN | ADC_CFGR_AWD1EN | ADC_CFGR_AWD1SGL)        \
   )
 
 /**
@@ -1784,10 +1784,9 @@ typedef struct
 #define __LL_ADC_CALC_VREFANALOG_VOLTAGE(__VREFINT_ADC_DATA__,\
                                          __ADC_RESOLUTION__)                   \
   (((uint32_t)(*VREFINT_CAL_ADDR) * VREFINT_CAL_VREF)                          \
-    / __LL_ADC_CONVERT_DATA_RESOLUTION((__VREFINT_ADC_DATA__),                 \
-                                       (__ADC_RESOLUTION__),                   \
-                                       LL_ADC_RESOLUTION_12B)                  \
-  )
+   / __LL_ADC_CONVERT_DATA_RESOLUTION((__VREFINT_ADC_DATA__),                  \
+                                      (__ADC_RESOLUTION__),                    \
+                                      LL_ADC_RESOLUTION_12B))
 
 /**
   * @brief  Helper macro to calculate the temperature (unit: degree Celsius)
@@ -1975,6 +1974,10 @@ __STATIC_INLINE uint32_t LL_ADC_DMA_GetRegAddr(ADC_TypeDef *ADCx, uint32_t Regis
 
 /**
   * @brief  Set parameter common to several ADC: Clock source and prescaler.
+  * @note   ADC clock source and prescaler must be selected in function of system clock to not exceed ADC maximum frequency, depending on devices.
+  *         Example: STM32WB55xx ADC maximum frequency is 64MHz (corresponding to 4.27Msmp/s maximum)
+  *         Example: STM32WB50xx ADC maximum frequency is 32MHz (corresponding to 2.13Msmp/s maximum)
+  *         For ADC maximum frequency, refer to datasheet of the selected device.
   * @note   On this STM32 serie, if ADC group injected is used, some
   *         clock ratio constraints between ADC clock and AHB clock
   *         must be respected.
@@ -2041,11 +2044,13 @@ __STATIC_INLINE uint32_t LL_ADC_GetCommonClock(ADC_Common_TypeDef *ADCxy_COMMON)
 }
 
 /**
-  * @brief  Set parameter common to several ADC: measurement path to internal
-  *         channels (VrefInt, temperature sensor, ...).
+  * @brief  Set parameter common to several ADC: measurement path to
+  *         internal channels (VrefInt, temperature sensor, ...).
+  *         Configure all paths (overwrite current configuration).
   * @note   One or several values can be selected.
   *         Example: (LL_ADC_PATH_INTERNAL_VREFINT |
   *                   LL_ADC_PATH_INTERNAL_TEMPSENSOR)
+  *         The values not selected are removed from configuration.
   * @note   Stabilization time of measurement path to internal channel:
   *         After enabling internal paths, before starting ADC conversion,
   *         a delay is required for internal voltage reference and
@@ -2078,6 +2083,77 @@ __STATIC_INLINE uint32_t LL_ADC_GetCommonClock(ADC_Common_TypeDef *ADCxy_COMMON)
 __STATIC_INLINE void LL_ADC_SetCommonPathInternalCh(ADC_Common_TypeDef *ADCxy_COMMON, uint32_t PathInternal)
 {
   MODIFY_REG(ADCxy_COMMON->CCR, ADC_CCR_VREFEN | ADC_CCR_TSEN | ADC_CCR_VBATEN, PathInternal);
+}
+
+/**
+  * @brief  Set parameter common to several ADC: measurement path to
+  *         internal channels (VrefInt, temperature sensor, ...).
+  *         Add paths to the current configuration.
+  * @note   One or several values can be selected.
+  *         Example: (LL_ADC_PATH_INTERNAL_VREFINT |
+  *                   LL_ADC_PATH_INTERNAL_TEMPSENSOR)
+  * @note   Stabilization time of measurement path to internal channel:
+  *         After enabling internal paths, before starting ADC conversion,
+  *         a delay is required for internal voltage reference and
+  *         temperature sensor stabilization time.
+  *         Refer to device datasheet.
+  *         Refer to literal @ref LL_ADC_DELAY_VREFINT_STAB_US.
+  *         Refer to literal @ref LL_ADC_DELAY_TEMPSENSOR_STAB_US.
+  * @note   ADC internal channel sampling time constraint:
+  *         For ADC conversion of internal channels,
+  *         a sampling time minimum value is required.
+  *         Refer to device datasheet.
+  * @note   On this STM32 serie, setting of this feature is conditioned to
+  *         ADC state:
+  *         All ADC instances of the ADC common group must be disabled.
+  *         This check can be done with function @ref LL_ADC_IsEnabled() for each
+  *         ADC instance or by using helper macro helper macro
+  *         @ref __LL_ADC_IS_ENABLED_ALL_COMMON_INSTANCE().
+  * @rmtoll CCR      VREFEN         LL_ADC_SetCommonPathInternalChAdd\n
+  *         CCR      TSEN           LL_ADC_SetCommonPathInternalChAdd\n
+  *         CCR      VBATEN         LL_ADC_SetCommonPathInternalChAdd
+  * @param  ADCxy_COMMON ADC common instance
+  *         (can be set directly from CMSIS definition or by using helper macro @ref __LL_ADC_COMMON_INSTANCE() )
+  * @param  PathInternal This parameter can be a combination of the following values:
+  *         @arg @ref LL_ADC_PATH_INTERNAL_NONE
+  *         @arg @ref LL_ADC_PATH_INTERNAL_VREFINT
+  *         @arg @ref LL_ADC_PATH_INTERNAL_TEMPSENSOR
+  *         @arg @ref LL_ADC_PATH_INTERNAL_VBAT
+  * @retval None
+  */
+__STATIC_INLINE void LL_ADC_SetCommonPathInternalChAdd(ADC_Common_TypeDef *ADCxy_COMMON, uint32_t PathInternal)
+{
+  SET_BIT(ADCxy_COMMON->CCR, PathInternal);
+}
+
+/**
+  * @brief  Set parameter common to several ADC: measurement path to
+  *         internal channels (VrefInt, temperature sensor, ...).
+  *         Remove paths to the current configuration.
+  * @note   One or several values can be selected.
+  *         Example: (LL_ADC_PATH_INTERNAL_VREFINT |
+  *                   LL_ADC_PATH_INTERNAL_TEMPSENSOR)
+  * @note   On this STM32 serie, setting of this feature is conditioned to
+  *         ADC state:
+  *         All ADC instances of the ADC common group must be disabled.
+  *         This check can be done with function @ref LL_ADC_IsEnabled() for each
+  *         ADC instance or by using helper macro helper macro
+  *         @ref __LL_ADC_IS_ENABLED_ALL_COMMON_INSTANCE().
+  * @rmtoll CCR      VREFEN         LL_ADC_SetCommonPathInternalChRem\n
+  *         CCR      TSEN           LL_ADC_SetCommonPathInternalChRem\n
+  *         CCR      VBATEN         LL_ADC_SetCommonPathInternalChRem
+  * @param  ADCxy_COMMON ADC common instance
+  *         (can be set directly from CMSIS definition or by using helper macro @ref __LL_ADC_COMMON_INSTANCE() )
+  * @param  PathInternal This parameter can be a combination of the following values:
+  *         @arg @ref LL_ADC_PATH_INTERNAL_NONE
+  *         @arg @ref LL_ADC_PATH_INTERNAL_VREFINT
+  *         @arg @ref LL_ADC_PATH_INTERNAL_TEMPSENSOR
+  *         @arg @ref LL_ADC_PATH_INTERNAL_VBAT
+  * @retval None
+  */
+__STATIC_INLINE void LL_ADC_SetCommonPathInternalChRem(ADC_Common_TypeDef *ADCxy_COMMON, uint32_t PathInternal)
+{
+  CLEAR_BIT(ADCxy_COMMON->CCR, PathInternal);
 }
 
 /**
@@ -2264,9 +2340,12 @@ __STATIC_INLINE uint32_t LL_ADC_GetDataAlignment(ADC_TypeDef *ADCx)
   *           Moreover, this avoids risk of overrun for low frequency
   *           applications.
   *           How to use this low power mode:
-  *           - Do not use with interruption or DMA since these modes
-  *             have to clear immediately the EOC flag to free the
-  *             IRQ vector sequencer.
+  *           - It is not recommended to use with interruption or DMA
+  *             since these modes have to clear immediately the EOC flag
+  *             (by CPU to free the IRQ pending event or by DMA).
+  *             Auto wait will work but fort a very short time, discarding
+  *             its intended benefit (except specific case of high load of CPU
+  *             or DMA transfers which can justify usage of auto wait).
   *           - Do use with polling: 1. Start conversion,
   *             2. Later on, when conversion data is needed: poll for end of
   *             conversion  to ensure that conversion is completed and
@@ -2317,9 +2396,12 @@ __STATIC_INLINE void LL_ADC_SetLowPowerMode(ADC_TypeDef *ADCx, uint32_t LowPower
   *           Moreover, this avoids risk of overrun for low frequency
   *           applications.
   *           How to use this low power mode:
-  *           - Do not use with interruption or DMA since these modes
-  *             have to clear immediately the EOC flag to free the
-  *             IRQ vector sequencer.
+  *           - It is not recommended to use with interruption or DMA
+  *             since these modes have to clear immediately the EOC flag
+  *             (by CPU to free the IRQ pending event or by DMA).
+  *             Auto wait will work but fort a very short time, discarding
+  *             its intended benefit (except specific case of high load of CPU
+  *             or DMA transfers which can justify usage of auto wait).
   *           - Do use with polling: 1. Start conversion,
   *             2. Later on, when conversion data is needed: poll for end of
   *             conversion  to ensure that conversion is completed and
@@ -2473,7 +2555,7 @@ __STATIC_INLINE void LL_ADC_SetOffset(ADC_TypeDef *ADCx, uint32_t Offsety, uint3
   *         @arg @ref LL_ADC_CHANNEL_16
   *         @arg @ref LL_ADC_CHANNEL_17
   *         @arg @ref LL_ADC_CHANNEL_18
-  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (1)
+  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (4)
   *         @arg @ref LL_ADC_CHANNEL_TEMPSENSOR   (4)
   *         @arg @ref LL_ADC_CHANNEL_VBAT         (4)
   *
@@ -3050,7 +3132,7 @@ __STATIC_INLINE void LL_ADC_REG_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   *         @arg @ref LL_ADC_CHANNEL_16
   *         @arg @ref LL_ADC_CHANNEL_17
   *         @arg @ref LL_ADC_CHANNEL_18
-  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (1)
+  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (4)
   *         @arg @ref LL_ADC_CHANNEL_TEMPSENSOR   (4)
   *         @arg @ref LL_ADC_CHANNEL_VBAT         (4)
   *
@@ -3064,10 +3146,10 @@ __STATIC_INLINE uint32_t LL_ADC_REG_GetSequencerRanks(ADC_TypeDef *ADCx, uint32_
 {
   register const __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->SQR1, ((Rank & ADC_REG_SQRX_REGOFFSET_MASK) >> ADC_SQRX_REGOFFSET_POS));
 
-  return (uint32_t) ((READ_BIT(*preg,
+  return (uint32_t)((READ_BIT(*preg,
                               ADC_CHANNEL_ID_NUMBER_MASK_POSBIT0 << (Rank & ADC_REG_RANK_ID_SQRX_MASK))
                      >> (Rank & ADC_REG_RANK_ID_SQRX_MASK)) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS
-                    );
+                   );
 }
 
 /**
@@ -3545,7 +3627,7 @@ __STATIC_INLINE void LL_ADC_INJ_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
   *         @arg @ref LL_ADC_CHANNEL_16
   *         @arg @ref LL_ADC_CHANNEL_17
   *         @arg @ref LL_ADC_CHANNEL_18
-  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (1)
+  *         @arg @ref LL_ADC_CHANNEL_VREFINT      (4)
   *         @arg @ref LL_ADC_CHANNEL_TEMPSENSOR   (4)
   *         @arg @ref LL_ADC_CHANNEL_VBAT         (4)
   *
@@ -3558,8 +3640,8 @@ __STATIC_INLINE void LL_ADC_INJ_SetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Ra
 __STATIC_INLINE uint32_t LL_ADC_INJ_GetSequencerRanks(ADC_TypeDef *ADCx, uint32_t Rank)
 {
   return (uint32_t)((READ_BIT(ADCx->JSQR,
-                             (ADC_CHANNEL_ID_NUMBER_MASK >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (Rank & ADC_INJ_RANK_ID_JSQR_MASK))
-                    >> (Rank & ADC_INJ_RANK_ID_JSQR_MASK)) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS
+                              (ADC_CHANNEL_ID_NUMBER_MASK >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (Rank & ADC_INJ_RANK_ID_JSQR_MASK))
+                     >> (Rank & ADC_INJ_RANK_ID_JSQR_MASK)) << ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS
                    );
 }
 
@@ -3850,15 +3932,15 @@ __STATIC_INLINE void LL_ADC_INJ_ConfigQueueContext(ADC_TypeDef *ADCx,
   /* If parameter "TriggerSource" is set to SW start, then parameter          */
   /* "ExternalTriggerEdge" is discarded.                                      */
   register uint32_t is_trigger_not_sw = (uint32_t)((TriggerSource != LL_ADC_INJ_TRIG_SOFTWARE) ? 1UL : 0UL);
-  MODIFY_REG(ADCx->JSQR           ,
+  MODIFY_REG(ADCx->JSQR,
              ADC_JSQR_JEXTSEL |
              ADC_JSQR_JEXTEN  |
              ADC_JSQR_JSQ4    |
              ADC_JSQR_JSQ3    |
              ADC_JSQR_JSQ2    |
              ADC_JSQR_JSQ1    |
-             ADC_JSQR_JL          ,
-             TriggerSource       |
+             ADC_JSQR_JL,
+             (TriggerSource & ADC_JSQR_JEXTSEL)          |
              (ExternalTriggerEdge * (is_trigger_not_sw)) |
              (((Rank4_Channel & ADC_CHANNEL_ID_NUMBER_MASK) >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (LL_ADC_INJ_RANK_4 & ADC_INJ_RANK_ID_JSQR_MASK)) |
              (((Rank3_Channel & ADC_CHANNEL_ID_NUMBER_MASK) >> ADC_CHANNEL_ID_NUMBER_BITOFFSET_POS) << (LL_ADC_INJ_RANK_3 & ADC_INJ_RANK_ID_JSQR_MASK)) |
@@ -4287,7 +4369,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t
   /* Parameters "AWDChannelGroup" and "AWDy" are used with masks because      */
   /* containing other bits reserved for other purpose.                        */
   register __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, ((AWDy & ADC_AWD_CRX_REGOFFSET_MASK) >> ADC_AWD_CRX_REGOFFSET_POS)
-                                                             + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
+                                                      + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
 
   MODIFY_REG(*preg,
              (AWDy & ADC_AWD_CR_ALL_CHANNEL_MASK),
@@ -4419,7 +4501,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t
 __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint32_t AWDy)
 {
   register const __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->CFGR, ((AWDy & ADC_AWD_CRX_REGOFFSET_MASK) >> ADC_AWD_CRX_REGOFFSET_POS)
-                                                             + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
+                                                            + ((AWDy & ADC_AWD_CR12_REGOFFSETGAP_MASK) * ADC_AWD_CR12_REGOFFSETGAP_VAL));
 
   register uint32_t AnalogWDMonitChannels = (READ_BIT(*preg, AWDy) & AWDy & ADC_AWD_CR_ALL_CHANNEL_MASK);
 
@@ -4427,14 +4509,14 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint
   /* (parameter value LL_ADC_AWD_DISABLE).                                    */
   /* Else, the selected AWD is enabled and is monitoring a group of channels  */
   /* or a single channel.                                                     */
-  if(AnalogWDMonitChannels != 0UL)
+  if (AnalogWDMonitChannels != 0UL)
   {
-    if(AWDy == LL_ADC_AWD1)
+    if (AWDy == LL_ADC_AWD1)
     {
-      if((AnalogWDMonitChannels & ADC_CFGR_AWD1SGL) == 0UL)
+      if ((AnalogWDMonitChannels & ADC_CFGR_AWD1SGL) == 0UL)
       {
         /* AWD monitoring a group of channels */
-        AnalogWDMonitChannels = ((  AnalogWDMonitChannels
+        AnalogWDMonitChannels = ((AnalogWDMonitChannels
                                   | (ADC_AWD_CR23_CHANNEL_MASK)
                                  )
                                  & (~(ADC_CFGR_AWD1CH))
@@ -4450,10 +4532,10 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint
     }
     else
     {
-      if((AnalogWDMonitChannels & ADC_AWD_CR23_CHANNEL_MASK) == ADC_AWD_CR23_CHANNEL_MASK)
+      if ((AnalogWDMonitChannels & ADC_AWD_CR23_CHANNEL_MASK) == ADC_AWD_CR23_CHANNEL_MASK)
       {
         /* AWD monitoring a group of channels */
-        AnalogWDMonitChannels = (  ADC_AWD_CR23_CHANNEL_MASK
+        AnalogWDMonitChannels = (ADC_AWD_CR23_CHANNEL_MASK
                                  | ((ADC_CFGR_JAWD1EN | ADC_CFGR_AWD1EN))
                                 );
       }
@@ -4461,7 +4543,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint
       {
         /* AWD monitoring a single channel */
         /* AWD monitoring a group of channels */
-        AnalogWDMonitChannels = (  AnalogWDMonitChannels
+        AnalogWDMonitChannels = (AnalogWDMonitChannels
                                  | (ADC_CFGR_JAWD1EN | ADC_CFGR_AWD1EN | ADC_CFGR_AWD1SGL)
                                  | (__LL_ADC_CHANNEL_TO_DECIMAL_NB(AnalogWDMonitChannels) << ADC_CFGR_AWD1CH_Pos)
                                 );
@@ -4524,7 +4606,8 @@ __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDMonitChannels(ADC_TypeDef *ADCx, uint
   * @param  AWDThresholdLowValue Value between Min_Data=0x000 and Max_Data=0xFFF
   * @retval None
   */
-__STATIC_INLINE void LL_ADC_ConfigAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDy, uint32_t AWDThresholdHighValue, uint32_t AWDThresholdLowValue)
+__STATIC_INLINE void LL_ADC_ConfigAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDy, uint32_t AWDThresholdHighValue,
+                                                     uint32_t AWDThresholdLowValue)
 {
   /* Set bits with content of parameter "AWDThresholdxxxValue" with bits      */
   /* position in register and register position depending on parameter        */
@@ -4592,7 +4675,8 @@ __STATIC_INLINE void LL_ADC_ConfigAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t
   * @param  AWDThresholdValue Value between Min_Data=0x000 and Max_Data=0xFFF
   * @retval None
   */
-__STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDy, uint32_t AWDThresholdsHighLow, uint32_t AWDThresholdValue)
+__STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDy, uint32_t AWDThresholdsHighLow,
+                                                  uint32_t AWDThresholdValue)
 {
   /* Set bits with content of parameter "AWDThresholdValue" with bits         */
   /* position in register and register position depending on parameters       */
@@ -4633,7 +4717,7 @@ __STATIC_INLINE void LL_ADC_SetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AW
   *         @arg @ref LL_ADC_AWD_THRESHOLD_LOW
   *         @arg @ref LL_ADC_AWD_THRESHOLDS_HIGH_LOW
   * @retval Value between Min_Data=0x000 and Max_Data=0xFFF
-*/
+  */
 __STATIC_INLINE uint32_t LL_ADC_GetAnalogWDThresholds(ADC_TypeDef *ADCx, uint32_t AWDy, uint32_t AWDThresholdsHighLow)
 {
   register const __IO uint32_t *preg = __ADC_PTR_REG_OFFSET(ADCx->TR1, ((AWDy & ADC_AWD_TRX_REGOFFSET_MASK) >> ADC_AWD_TRX_REGOFFSET_POS));
@@ -4806,7 +4890,7 @@ __STATIC_INLINE void LL_ADC_ConfigOverSamplingRatioShift(ADC_TypeDef *ADCx, uint
   *         @arg @ref LL_ADC_OVS_RATIO_64
   *         @arg @ref LL_ADC_OVS_RATIO_128
   *         @arg @ref LL_ADC_OVS_RATIO_256
-*/
+  */
 __STATIC_INLINE uint32_t LL_ADC_GetOverSamplingRatio(ADC_TypeDef *ADCx)
 {
   return (uint32_t)(READ_BIT(ADCx->CFGR2, ADC_CFGR2_OVSR));
@@ -4827,7 +4911,7 @@ __STATIC_INLINE uint32_t LL_ADC_GetOverSamplingRatio(ADC_TypeDef *ADCx)
   *         @arg @ref LL_ADC_OVS_SHIFT_RIGHT_6
   *         @arg @ref LL_ADC_OVS_SHIFT_RIGHT_7
   *         @arg @ref LL_ADC_OVS_SHIFT_RIGHT_8
-*/
+  */
 __STATIC_INLINE uint32_t LL_ADC_GetOverSamplingShift(ADC_TypeDef *ADCx)
 {
   return (uint32_t)(READ_BIT(ADCx->CFGR2, ADC_CFGR2_OVSS));
@@ -5291,7 +5375,7 @@ __STATIC_INLINE uint32_t LL_ADC_INJ_IsStopConversionOngoing(ADC_TypeDef *ADCx)
 }
 
 /**
-  * @brief  Get ADC group regular conversion data, range fit for
+  * @brief  Get ADC group injected conversion data, range fit for
   *         all ADC configurations: all ADC resolutions and
   *         all oversampling increased data width (for devices
   *         with feature oversampling).
