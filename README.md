@@ -23,7 +23,8 @@ conflict resolution) to newer vendor tags to create the next working branch.
 Original sources
 ================
 
-The sources are obtained from ``http://st.com``
+The sources are obtained from ``http://st.com``, and also from the git
+repositories found at ``https://github.com/STMicroelectronics/``.
 
 For all .c and .h files the following processing has been done to the original
 files before committing them here:
@@ -31,16 +32,6 @@ files before committing them here:
 - trailing spaces removed
 - tabs expanded to 4 spaces
 - non-ASCII chars converted to their ASCII equivalent
-
-A shell function to do this processing is:
-```sh
-function clean_code() {
-    chmod 644 $1
-    cat $1 | awk "{sub(/[\t ]*\r/,\"\")}1" | expand -t 4 | tr \\200\\205\\211\\221\\222\\223\\224\\226\\231\\244\\261\\265\\302\\327\\342 \'??\'\'\"\"\\-\'??u?x\' > tmp$$
-    mv tmp$$ $1
-}
-find path -type f | while read file; do echo "$file"; clean_code "$file"; done
-```
 
 Directories from the original sources are mapped into this repository according
 to the following:
@@ -51,3 +42,6 @@ Drivers/CMSIS/Device/ST/STM32F4xx/Include -> CMSIS/STM32F4xx/Include
 Drivers/CMSIS/Device/ST/STM32F4xx/Source  -> CMSIS/STM32F4xx/Source
 ```
 And similar for the other microcontroller classes.
+
+The included `fetch_from_upstream.sh` script can automatically copy and process
+new source code from an STM git repository.
