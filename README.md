@@ -1,8 +1,8 @@
-STM32 Cube library - CMSIS and HAL for F0, F4, F7, H7, L0, L4 and WB microcontrollers
-=====================================================================================
+STM32 Cube library - CMSIS and HAL for F0, F4, F7, G4, H7, L0, L4 and WB microcontrollers
+=========================================================================================
 
 This repository contains a copy of STMicroelectronic's STM32 Cube firmware
-library, with CMSIS-device and HAL code for STM32F0xx, STM32F4xx, STM32F7xx,
+library, with CMSIS-device and HAL code for STM32F0xx, STM32F4xx, STM32F7xx, STM32G4xx,
 STM32H7xx, STM32L0xx, STM32L4xx and STM32WBxx microcontrollers.  Minor changes
 are applied to the HAL source to support MicroPython's port to the STM32.
 
