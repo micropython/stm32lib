@@ -156,6 +156,16 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
+// MicroPython: Use bit-banding to avoid race condition where an interrupt that
+// modifies a register can happen while a register is being modified in an IT
+// or DMA start or stop function.
+
+#define PERIPH_BB_REG_ADDR(reg, bit_pos) (__IO uint32_t *)(PERIPH_BB_BASE + ((const uintptr_t)(&(reg)) - PERIPH_BASE) * 32 + (bit_pos) * 4)
+
+// These are a near-drop-in replacement for SET_BIT and CLEAR_BIT except they can only handle one bit
+#define SET_BIT_PERIPH_BB(reg, bit) (*(PERIPH_BB_REG_ADDR((reg), (bit##_Pos))) = 1)
+#define CLEAR_BIT_PERIPH_BB(reg, bit) (*(PERIPH_BB_REG_ADDR((reg), (bit##_Pos))) = 0)
+
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
@@ -809,7 +819,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
     __HAL_UNLOCK(huart);
 
     /* Enable the UART Transmit data register empty Interrupt */
-    SET_BIT(huart->Instance->CR1, USART_CR1_TXEIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TXEIE);
 
     return HAL_OK;
   }
@@ -851,10 +861,11 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
     __HAL_UNLOCK(huart);
 
     /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-    SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
     /* Enable the UART Parity Error and Data Register not empty Interrupts */
-    SET_BIT(huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_RXNEIE);
 
     return HAL_OK;
   }
@@ -918,7 +929,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pDat
 
     /* Enable the DMA transfer for transmit request by setting the DMAT bit
        in the UART CR3 register */
-    SET_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    SET_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
 
     return HAL_OK;
   }
@@ -975,20 +986,24 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
     HAL_DMA_Start_IT(huart->hdmarx, (uint32_t)&huart->Instance->DR, *(uint32_t*)tmp, Size);
 
     /* Clear the Overrun flag just before enabling the DMA Rx request: can be mandatory for the second transfer */
-    __HAL_UART_CLEAR_OREFLAG(huart);
+    /* If hardware flow control is enabled, then there shouldn't be an overrun and this would cause data loss since
+      __HAL_UART_CLEAR_OREFLAG reads the DR register. */
+    if (!(huart->Instance->CR3 & USART_CR3_RTSE)) {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+    }
 
     /* Process Unlocked */
     __HAL_UNLOCK(huart);
 
     /* Enable the UART Parity Error Interrupt */
-    SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
 
     /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-    SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
     /* Enable the DMA transfer for the receiver request by setting the DMAR bit
     in the UART CR3 register */
-    SET_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+    SET_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
 
     return HAL_OK;
   }
@@ -1014,17 +1029,17 @@ HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart)
   if((huart->gState == HAL_UART_STATE_BUSY_TX) && dmarequest)
   {
     /* Disable the UART DMA Tx request */
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
   }
   dmarequest = HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR);
   if((huart->RxState == HAL_UART_STATE_BUSY_RX) && dmarequest)
   {
     /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-    CLEAR_BIT(huart->Instance->CR1, USART_CR1_PEIE);
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
     /* Disable the UART DMA Rx request */
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
   }
 
   /* Process Unlocked */
@@ -1047,19 +1062,23 @@ HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
   if(huart->gState == HAL_UART_STATE_BUSY_TX)
   {
     /* Enable the UART DMA Tx request */
-    SET_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    SET_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
   }
   if(huart->RxState == HAL_UART_STATE_BUSY_RX)
   {
     /* Clear the Overrun flag before resuming the Rx transfer*/
-    __HAL_UART_CLEAR_OREFLAG(huart);
+    /* If hardware flow control is enabled, then there shouldn't be an overrun and this would cause data loss since
+      __HAL_UART_CLEAR_OREFLAG reads the DR register. */
+    if (!(huart->Instance->CR3 & USART_CR3_RTSE)) {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+    }
 
     /* Reenable PE and ERR (Frame error, noise error, overrun error) interrupts */
-    SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
-    SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
     /* Enable the UART DMA Rx request */
-    SET_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+    SET_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
   }
 
   /* Process Unlocked */
@@ -1087,7 +1106,7 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   dmarequest = HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAT);
   if((huart->gState == HAL_UART_STATE_BUSY_TX) && dmarequest)
   {
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
 
     /* Abort the UART DMA Tx channel */
     if(huart->hdmatx != NULL)
@@ -1101,7 +1120,7 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   dmarequest = HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR);
   if((huart->RxState == HAL_UART_STATE_BUSY_RX) && dmarequest)
   {
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
 
     /* Abort the UART DMA Rx channel */
     if(huart->hdmarx != NULL)
@@ -1129,13 +1148,16 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_UART_Abort(UART_HandleTypeDef *huart)
 {
   /* Disable TXEIE, TCIE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE | USART_CR1_TXEIE | USART_CR1_TCIE));
-  CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_RXNEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TXEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
   /* Disable the UART DMA Tx request if enabled */
   if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAT))
   {
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
 
     /* Abort the UART DMA Tx channel: use blocking DMA Abort API (no callback) */
     if(huart->hdmatx != NULL)
@@ -1151,7 +1173,7 @@ HAL_StatusTypeDef HAL_UART_Abort(UART_HandleTypeDef *huart)
   /* Disable the UART DMA Rx request if enabled */
   if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR))
   {
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
 
     /* Abort the UART DMA Rx channel: use blocking DMA Abort API (no callback) */
     if(huart->hdmarx != NULL)
@@ -1193,12 +1215,13 @@ HAL_StatusTypeDef HAL_UART_Abort(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_UART_AbortTransmit(UART_HandleTypeDef *huart)
 {
   /* Disable TXEIE and TCIE interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_TXEIE | USART_CR1_TCIE));
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TXEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
 
   /* Disable the UART DMA Tx request if enabled */
   if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAT))
   {
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
 
     /* Abort the UART DMA Tx channel : use blocking DMA Abort API (no callback) */
     if(huart->hdmatx != NULL)
@@ -1235,13 +1258,14 @@ HAL_StatusTypeDef HAL_UART_AbortTransmit(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_UART_AbortReceive(UART_HandleTypeDef *huart)
 {
   /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
-  CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_RXNEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
   /* Disable the UART DMA Rx request if enabled */
   if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR))
   {
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
 
     /* Abort the UART DMA Rx channel : use blocking DMA Abort API (no callback) */
     if(huart->hdmarx != NULL)
@@ -1282,8 +1306,11 @@ HAL_StatusTypeDef HAL_UART_Abort_IT(UART_HandleTypeDef *huart)
   uint32_t AbortCplt = 0x01U;
 
   /* Disable TXEIE, TCIE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE | USART_CR1_TXEIE | USART_CR1_TCIE));
-  CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TXEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
   /* If DMA Tx and/or DMA Rx Handles are associated to UART Handle, DMA Abort complete callbacks should be initialised
      before any call to DMA Abort functions */
@@ -1320,7 +1347,7 @@ HAL_StatusTypeDef HAL_UART_Abort_IT(UART_HandleTypeDef *huart)
   if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAT))
   {
     /* Disable DMA Tx at UART level */
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
 
     /* Abort the UART DMA Tx channel : use non blocking DMA Abort API (callback) */
     if(huart->hdmatx != NULL)
@@ -1402,12 +1429,13 @@ HAL_StatusTypeDef HAL_UART_Abort_IT(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_UART_AbortTransmit_IT(UART_HandleTypeDef *huart)
 {
   /* Disable TXEIE and TCIE interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_TXEIE | USART_CR1_TCIE));
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TXEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
 
   /* Disable the UART DMA Tx request if enabled */
   if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAT))
   {
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
 
     /* Abort the UART DMA Tx channel : use blocking DMA Abort API (no callback) */
     if(huart->hdmatx != NULL)
@@ -1591,7 +1619,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
         /* Disable the UART DMA Rx request if enabled */
         if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR))
         {
-          CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+          CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
 
           /* Abort the UART DMA Rx channel */
           if(huart->hdmarx != NULL)
@@ -1800,7 +1828,7 @@ HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart)
   huart->gState = HAL_UART_STATE_BUSY;
 
   /* Send break characters */
-  SET_BIT(huart->Instance->CR1, USART_CR1_SBK);
+  SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_SBK);
 
   huart->gState = HAL_UART_STATE_READY;
 
@@ -1827,7 +1855,7 @@ HAL_StatusTypeDef HAL_MultiProcessor_EnterMuteMode(UART_HandleTypeDef *huart)
   huart->gState = HAL_UART_STATE_BUSY;
 
   /* Enable the USART mute mode  by setting the RWU bit in the CR1 register */
-  SET_BIT(huart->Instance->CR1, USART_CR1_RWU);
+  SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_RWU);
 
   huart->gState = HAL_UART_STATE_READY;
 
@@ -1854,7 +1882,7 @@ HAL_StatusTypeDef HAL_MultiProcessor_ExitMuteMode(UART_HandleTypeDef *huart)
   huart->gState = HAL_UART_STATE_BUSY;
 
   /* Disable the USART mute mode by clearing the RWU bit in the CR1 register */
-  CLEAR_BIT(huart->Instance->CR1, USART_CR1_RWU);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_RWU);
 
   huart->gState = HAL_UART_STATE_READY;
 
@@ -2001,10 +2029,10 @@ static void UART_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 
     /* Disable the DMA transfer for transmit request by setting the DMAT bit
        in the UART CR3 register */
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAT);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAT);
 
     /* Enable the UART Transmit Complete Interrupt */
-    SET_BIT(huart->Instance->CR1, USART_CR1_TCIE);
+    SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
 
   }
   /* DMA Circular mode */
@@ -2041,12 +2069,12 @@ static void UART_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
     huart->RxXferCount = 0U;
 
     /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-    CLEAR_BIT(huart->Instance->CR1, USART_CR1_PEIE);
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
     /* Disable the DMA transfer for the receiver request by setting the DMAR bit
        in the UART CR3 register */
-    CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
+    CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_DMAR);
 
     /* At end of Rx process, restore huart->RxState to Ready */
     huart->RxState = HAL_UART_STATE_READY;
@@ -2143,7 +2171,8 @@ static HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, 
 static void UART_EndTxTransfer(UART_HandleTypeDef *huart)
 {
   /* Disable TXEIE and TCIE interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_TXEIE | USART_CR1_TCIE));
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TXEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
 
   /* At end of Tx process, restore huart->gState to Ready */
   huart->gState = HAL_UART_STATE_READY;
@@ -2157,8 +2186,9 @@ static void UART_EndTxTransfer(UART_HandleTypeDef *huart)
 static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
 {
   /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
-  CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_RXNEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
   /* At end of Rx process, restore huart->RxState to Ready */
   huart->RxState = HAL_UART_STATE_READY;
@@ -2331,10 +2361,10 @@ static HAL_StatusTypeDef UART_Transmit_IT(UART_HandleTypeDef *huart)
     if(--huart->TxXferCount == 0U)
     {
       /* Disable the UART Transmit Complete Interrupt */
-      CLEAR_BIT(huart->Instance->CR1, USART_CR1_TXEIE);
+      CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TXEIE);
 
       /* Enable the UART Transmit Complete Interrupt */
-      SET_BIT(huart->Instance->CR1, USART_CR1_TCIE);
+      SET_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
     }
     return HAL_OK;
   }
@@ -2353,7 +2383,7 @@ static HAL_StatusTypeDef UART_Transmit_IT(UART_HandleTypeDef *huart)
 static HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart)
 {
   /* Disable the UART Transmit Complete Interrupt */
-  CLEAR_BIT(huart->Instance->CR1, USART_CR1_TCIE);
+  CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_TCIE);
 
   /* Tx process is ended, restore huart->gState to Ready */
   huart->gState = HAL_UART_STATE_READY;
@@ -2405,10 +2435,11 @@ static HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart)
     if(--huart->RxXferCount == 0U)
     {
       /* Disable the UART Parity Error Interrupt and RXNE interrupt*/
-      CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
+      CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_RXNEIE);
+      CLEAR_BIT_PERIPH_BB(huart->Instance->CR1, USART_CR1_PEIE);
 
       /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-      CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+      CLEAR_BIT_PERIPH_BB(huart->Instance->CR3, USART_CR3_EIE);
 
       /* Rx process is completed, restore huart->RxState to Ready */
       huart->RxState = HAL_UART_STATE_READY;
