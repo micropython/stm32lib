@@ -975,7 +975,11 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
     HAL_DMA_Start_IT(huart->hdmarx, (uint32_t)&huart->Instance->DR, *(uint32_t*)tmp, Size);
 
     /* Clear the Overrun flag just before enabling the DMA Rx request: can be mandatory for the second transfer */
-    __HAL_UART_CLEAR_OREFLAG(huart);
+    /* If hardware flow control is enabled, then there shouldn't be an overrun and this would cause data loss since
+      __HAL_UART_CLEAR_OREFLAG reads the DR register. */
+    if (!(huart->Instance->CR3 & USART_CR3_RTSE)) {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+    }
 
     /* Process Unlocked */
     __HAL_UNLOCK(huart);
@@ -1052,7 +1056,11 @@ HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
   if(huart->RxState == HAL_UART_STATE_BUSY_RX)
   {
     /* Clear the Overrun flag before resuming the Rx transfer*/
-    __HAL_UART_CLEAR_OREFLAG(huart);
+    /* If hardware flow control is enabled, then there shouldn't be an overrun and this would cause data loss since
+      __HAL_UART_CLEAR_OREFLAG reads the DR register. */
+    if (!(huart->Instance->CR3 & USART_CR3_RTSE)) {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+    }
 
     /* Reenable PE and ERR (Frame error, noise error, overrun error) interrupts */
     SET_BIT(huart->Instance->CR1, USART_CR1_PEIE);
