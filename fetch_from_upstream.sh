@@ -41,6 +41,9 @@ rm -rf $hal/Src
 cp -r $gitsrc/Drivers/${mcu}xx_HAL_Driver/Inc $hal/
 cp -r $gitsrc/Drivers/${mcu}xx_HAL_Driver/Src $hal/
 
+# Make sure tr and exand don't expect UTF-8, because these files aren't
+export LC_CTYPE=C
+
 for dir in $cmsis $hal; do
     # Process the new source code to:
     # - remove trailing white-space
