@@ -2,42 +2,24 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   Header file of PWR HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_HAL_PWR_EX_H
-#define __STM32L4xx_HAL_PWR_EX_H
+#ifndef STM32L4xx_HAL_PWR_EX_H
+#define STM32L4xx_HAL_PWR_EX_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -155,8 +137,11 @@ typedef struct
 /** @defgroup PWREx_Regulator_Voltage_Scale  PWR Regulator voltage scale
   * @{
   */
-#define PWR_REGULATOR_VOLTAGE_SCALE1       PWR_CR1_VOS_0     /*!< Voltage scaling range 1 */
-#define PWR_REGULATOR_VOLTAGE_SCALE2       PWR_CR1_VOS_1     /*!< Voltage scaling range 2 */
+#if defined(PWR_CR5_R1MODE)
+#define PWR_REGULATOR_VOLTAGE_SCALE1_BOOST  ((uint32_t)0x00000000)  /*!< Voltage scaling range 1 boost mode  */
+#endif
+#define PWR_REGULATOR_VOLTAGE_SCALE1        PWR_CR1_VOS_0           /*!< Voltage scaling range 1 normal mode */
+#define PWR_REGULATOR_VOLTAGE_SCALE2        PWR_CR1_VOS_1           /*!< Voltage scaling range 2             */
 /**
   * @}
   */
@@ -206,24 +191,24 @@ typedef struct
 /** @defgroup PWREx_GPIO GPIO port
   * @{
   */
-#define PWR_GPIO_A   0x00000000      /*!< GPIO port A */
-#define PWR_GPIO_B   0x00000001      /*!< GPIO port B */
-#define PWR_GPIO_C   0x00000002      /*!< GPIO port C */
+#define PWR_GPIO_A   0x00000000U      /*!< GPIO port A */
+#define PWR_GPIO_B   0x00000001U      /*!< GPIO port B */
+#define PWR_GPIO_C   0x00000002U      /*!< GPIO port C */
 #if defined(GPIOD_BASE)
-#define PWR_GPIO_D   0x00000003      /*!< GPIO port D */
+#define PWR_GPIO_D   0x00000003U      /*!< GPIO port D */
 #endif
 #if defined(GPIOE_BASE)
-#define PWR_GPIO_E   0x00000004      /*!< GPIO port E */
+#define PWR_GPIO_E   0x00000004U      /*!< GPIO port E */
 #endif
 #if defined(GPIOF_BASE)
-#define PWR_GPIO_F   0x00000005      /*!< GPIO port F */
+#define PWR_GPIO_F   0x00000005U      /*!< GPIO port F */
 #endif
 #if defined(GPIOG_BASE)
-#define PWR_GPIO_G   0x00000006      /*!< GPIO port G */
+#define PWR_GPIO_G   0x00000006U      /*!< GPIO port G */
 #endif
-#define PWR_GPIO_H   0x00000007      /*!< GPIO port H */
+#define PWR_GPIO_H   0x00000007U      /*!< GPIO port H */
 #if defined(GPIOI_BASE)
-#define PWR_GPIO_I   0x00000008      /*!< GPIO port I */
+#define PWR_GPIO_I   0x00000008U      /*!< GPIO port I */
 #endif
 /**
   * @}
@@ -276,6 +261,9 @@ typedef struct
 #define PWR_FLAG_WUF5                       ((uint32_t)0x0024)   /*!< Wakeup event on wakeup pin 5 */
 #define PWR_FLAG_WU                         PWR_SR1_WUF          /*!< Encompass wakeup event on all wakeup pins */
 #define PWR_FLAG_SB                         ((uint32_t)0x0028)   /*!< Standby flag */
+#if defined(PWR_SR1_EXT_SMPS_RDY)
+#define PWR_FLAG_EXT_SMPS                   ((uint32_t)0x002D)   /*!< Switching to external SMPS ready flag */
+#endif /* PWR_SR1_EXT_SMPS_RDY */
 #define PWR_FLAG_WUFI                       ((uint32_t)0x002F)   /*!< Wakeup on internal wakeup line */
 
 #define PWR_FLAG_REGLPS                     ((uint32_t)0x0048)   /*!< Low-power regulator start flag */
@@ -290,6 +278,20 @@ typedef struct
 #endif /* PWR_CR2_PVME2 */
 #define PWR_FLAG_PVMO3                      ((uint32_t)0x004E)   /*!< Power Voltage Monitoring 3 output flag */
 #define PWR_FLAG_PVMO4                      ((uint32_t)0x004F)   /*!< Power Voltage Monitoring 4 output flag */
+/**
+  * @}
+  */
+
+/** @defgroup PWREx_SRAM2_Retention PWR SRAM2 Retention in Standby mode
+  * @{
+  */
+#define PWR_NO_SRAM2_RETENTION         ((uint32_t)0x00000000)  /*!< SRAM2 is powered off in Standby mode (SRAM2 content is lost) */
+#if defined(PWR_CR3_RRS_1)
+#define PWR_FULL_SRAM2_RETENTION       PWR_CR3_RRS_0      /*!< Full SRAM2 is powered by the low-power regulator in Standby mode */
+#define PWR_4KBYTES_SRAM2_RETENTION    PWR_CR3_RRS_1      /*!< Only 4 Kbytes of SRAM2 is powered by the low-power regulator in Standby mode */
+#else
+#define PWR_FULL_SRAM2_RETENTION       PWR_CR3_RRS        /*!< Full SRAM2 is powered by the low-power regulator in Standby mode */
+#endif /* PWR_CR3_RRS_1 */
 /**
   * @}
   */
@@ -669,7 +671,7 @@ typedef struct
 
 /**
   * @brief Configure the main internal regulator output voltage.
-  * @param  __REGULATOR__: specifies the regulator output voltage to achieve
+  * @param  __REGULATOR__ specifies the regulator output voltage to achieve
   *         a tradeoff between performance and power consumption.
   *          This parameter can be one of the following values:
   *            @arg @ref PWR_REGULATOR_VOLTAGE_SCALE1  Regulator voltage output range 1 mode,
@@ -717,7 +719,9 @@ typedef struct
                                 ((PIN) == PWR_WAKEUP_PIN5_LOW))
 
 #if defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) || \
-    defined (STM32L496xx) || defined (STM32L4A6xx)
+    defined (STM32L496xx) || defined (STM32L4A6xx)                                                   || \
+    defined (STM32L4P5xx) || defined (STM32L4Q5xx)                                                   || \
+    defined (STM32L4R5xx) || defined (STM32L4R7xx) || defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
 #define IS_PWR_PVM_TYPE(TYPE) (((TYPE) == PWR_PVM_1) ||\
                                ((TYPE) == PWR_PVM_2) ||\
                                ((TYPE) == PWR_PVM_3) ||\
@@ -728,7 +732,7 @@ typedef struct
                                ((TYPE) == PWR_PVM_4))
 #endif
 
-#if defined (STM32L433xx) || defined (STM32L443xx) || defined (STM32L452xx) || defined (STM32L462xx)
+#if defined (STM32L412xx) || defined (STM32L422xx) || defined (STM32L433xx) || defined (STM32L443xx) || defined (STM32L452xx) || defined (STM32L462xx)
 #define IS_PWR_PVM_TYPE(TYPE) (((TYPE) == PWR_PVM_1) ||\
                                ((TYPE) == PWR_PVM_3) ||\
                                ((TYPE) == PWR_PVM_4))
@@ -745,8 +749,15 @@ typedef struct
                                 ((MODE) == PWR_PVM_MODE_EVENT_FALLING)       ||\
                                 ((MODE) == PWR_PVM_MODE_EVENT_RISING_FALLING))
 
+#if defined(PWR_CR5_R1MODE)
+#define IS_PWR_VOLTAGE_SCALING_RANGE(RANGE) (((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE1_BOOST) || \
+                                             ((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE1)       || \
+                                             ((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE2))
+#else
 #define IS_PWR_VOLTAGE_SCALING_RANGE(RANGE) (((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE1) || \
                                              ((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE2))
+#endif
+
 
 #define IS_PWR_BATTERY_RESISTOR_SELECT(RESISTOR) (((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_5) ||\
                                                   ((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_1_5))
@@ -757,8 +768,14 @@ typedef struct
 #define IS_PWR_GPIO_BIT_NUMBER(BIT_NUMBER) (((BIT_NUMBER) & GPIO_PIN_MASK) != (uint32_t)0x00)
 
 
-#if defined (STM32L431xx) || defined (STM32L433xx) || defined (STM32L443xx) || \
-    defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx)
+#if defined (STM32L412xx) || defined (STM32L422xx)
+#define IS_PWR_GPIO(GPIO) (((GPIO) == PWR_GPIO_A) ||\
+                           ((GPIO) == PWR_GPIO_B) ||\
+                           ((GPIO) == PWR_GPIO_C) ||\
+                           ((GPIO) == PWR_GPIO_D) ||\
+                           ((GPIO) == PWR_GPIO_H))
+#elif defined (STM32L431xx) || defined (STM32L433xx) || defined (STM32L443xx) || \
+      defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx)
 #define IS_PWR_GPIO(GPIO) (((GPIO) == PWR_GPIO_A) ||\
                            ((GPIO) == PWR_GPIO_B) ||\
                            ((GPIO) == PWR_GPIO_C) ||\
@@ -779,7 +796,9 @@ typedef struct
                            ((GPIO) == PWR_GPIO_F) ||\
                            ((GPIO) == PWR_GPIO_G) ||\
                            ((GPIO) == PWR_GPIO_H))
-#elif defined (STM32L496xx) || defined (STM32L4A6xx)
+#elif defined (STM32L496xx) || defined (STM32L4A6xx) || \
+      defined (STM32L4P5xx) || defined (STM32L4Q5xx) || \
+      defined (STM32L4R5xx) || defined (STM32L4R7xx) || defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
 #define IS_PWR_GPIO(GPIO) (((GPIO) == PWR_GPIO_A) ||\
                            ((GPIO) == PWR_GPIO_B) ||\
                            ((GPIO) == PWR_GPIO_C) ||\
@@ -791,6 +810,14 @@ typedef struct
                            ((GPIO) == PWR_GPIO_I))
 #endif
 
+#if defined (STM32L4P5xx) || defined (STM32L4Q5xx)
+#define IS_PWR_SRAM2_RETENTION(SRAM2) (((SRAM2) == PWR_NO_SRAM2_RETENTION)   ||\
+                                       ((SRAM2) == PWR_FULL_SRAM2_RETENTION) ||\
+                                       ((SRAM2) == PWR_4KBYTES_SRAM2_RETENTION))
+#else
+#define IS_PWR_SRAM2_RETENTION(SRAM2) (((SRAM2) == PWR_NO_SRAM2_RETENTION)   ||\
+                                       ((SRAM2) == PWR_FULL_SRAM2_RETENTION))
+#endif
 
 /**
   * @}
@@ -829,6 +856,15 @@ void HAL_PWREx_EnablePullUpPullDownConfig(void);
 void HAL_PWREx_DisablePullUpPullDownConfig(void);
 void HAL_PWREx_EnableSRAM2ContentRetention(void);
 void HAL_PWREx_DisableSRAM2ContentRetention(void);
+HAL_StatusTypeDef HAL_PWREx_SetSRAM2ContentRetention(uint32_t SRAM2Size);
+#if defined(PWR_CR1_RRSTP)
+void HAL_PWREx_EnableSRAM3ContentRetention(void);
+void HAL_PWREx_DisableSRAM3ContentRetention(void);
+#endif /* PWR_CR1_RRSTP */
+#if defined(PWR_CR3_DSIPDEN)
+void HAL_PWREx_EnableDSIPinsPDActivation(void);
+void HAL_PWREx_DisableDSIPinsPDActivation(void);
+#endif /* PWR_CR3_DSIPDEN */
 #if defined(PWR_CR2_PVME1)
 void HAL_PWREx_EnablePVM1(void);
 void HAL_PWREx_DisablePVM1(void);
@@ -842,6 +878,14 @@ void HAL_PWREx_DisablePVM3(void);
 void HAL_PWREx_EnablePVM4(void);
 void HAL_PWREx_DisablePVM4(void);
 HAL_StatusTypeDef HAL_PWREx_ConfigPVM(PWR_PVMTypeDef *sConfigPVM);
+#if defined(PWR_CR3_ENULP)
+void HAL_PWREx_EnableBORPVD_ULP(void);
+void HAL_PWREx_DisableBORPVD_ULP(void);
+#endif /* PWR_CR3_ENULP */
+#if defined(PWR_CR4_EXT_SMPS_ON)
+void HAL_PWREx_EnableExtSMPS_0V95(void);
+void HAL_PWREx_DisableExtSMPS_0V95(void);
+#endif /* PWR_CR4_EXT_SMPS_ON */
 
 
 /* Low Power modes configuration functions ************************************/
@@ -883,6 +927,6 @@ void HAL_PWREx_PVM4Callback(void);
 #endif
 
 
-#endif /* __STM32L4xx_HAL_PWR_EX_H */
+#endif /* STM32L4xx_HAL_PWR_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

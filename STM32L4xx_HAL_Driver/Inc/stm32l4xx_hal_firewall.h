@@ -2,42 +2,24 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_firewall.h
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   Header file of FIREWALL HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_HAL_FIREWALL_H
-#define __STM32L4xx_HAL_FIREWALL_H
+#ifndef STM32L4xx_HAL_FIREWALL_H
+#define STM32L4xx_HAL_FIREWALL_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -180,14 +162,14 @@ typedef struct
   *       0, that is, when the non volatile data segment is defined), the macro can be
   *       executed only when the Firewall is opened.
   */
-#define __HAL_FIREWALL_PREARM_ENABLE()                                         \
-             do {                                                              \
-                  __IO uint32_t tmpreg;                                        \
-                  SET_BIT(FIREWALL->CR, FW_CR_FPA) ;                           \
-                  /* Read bit back to ensure it is taken into account by IP */ \
-                  /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_FPA) ;                 \
-                  UNUSED(tmpreg);                                              \
+#define __HAL_FIREWALL_PREARM_ENABLE()                                                 \
+             do {                                                                      \
+                  __IO uint32_t tmpreg;                                                \
+                  SET_BIT(FIREWALL->CR, FW_CR_FPA) ;                                   \
+                  /* Read bit back to ensure it is taken into account by Peripheral */ \
+                  /* (introduce proper delay inside macro execution) */                \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_FPA) ;                         \
+                  UNUSED(tmpreg);                                                      \
                 } while(0)
 
 
@@ -202,14 +184,14 @@ typedef struct
   *       0, that is, when the non volatile data segment is defined), the macro can be
   *       executed only when the Firewall is opened.
   */
-#define __HAL_FIREWALL_PREARM_DISABLE()                                        \
-             do {                                                              \
-                  __IO uint32_t tmpreg;                                        \
-                  CLEAR_BIT(FIREWALL->CR, FW_CR_FPA) ;                         \
-                  /* Read bit back to ensure it is taken into account by IP */ \
-                  /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_FPA) ;                 \
-                  UNUSED(tmpreg);                                              \
+#define __HAL_FIREWALL_PREARM_DISABLE()                                                \
+             do {                                                                      \
+                  __IO uint32_t tmpreg;                                                \
+                  CLEAR_BIT(FIREWALL->CR, FW_CR_FPA) ;                                 \
+                  /* Read bit back to ensure it is taken into account by Peripheral */ \
+                  /* (introduce proper delay inside macro execution) */                \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_FPA) ;                         \
+                  UNUSED(tmpreg);                                                      \
                 } while(0)
 
 /** @brief Enable volatile data sharing in setting VDS bit.
@@ -221,14 +203,14 @@ typedef struct
   *       0, that is, when the non volatile data segment is defined), the macro can be
   *       executed only when the Firewall is opened.
   */
-#define __HAL_FIREWALL_VOLATILEDATA_SHARED_ENABLE()                            \
-             do {                                                              \
-                  __IO uint32_t tmpreg;                                        \
-                  SET_BIT(FIREWALL->CR, FW_CR_VDS) ;                           \
-                  /* Read bit back to ensure it is taken into account by IP */ \
-                  /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDS) ;                 \
-                  UNUSED(tmpreg);                                              \
+#define __HAL_FIREWALL_VOLATILEDATA_SHARED_ENABLE()                                    \
+             do {                                                                      \
+                  __IO uint32_t tmpreg;                                                \
+                  SET_BIT(FIREWALL->CR, FW_CR_VDS) ;                                   \
+                  /* Read bit back to ensure it is taken into account by Peripheral */ \
+                  /* (introduce proper delay inside macro execution) */                \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDS) ;                         \
+                  UNUSED(tmpreg);                                                      \
                 } while(0)
 
 /** @brief Disable volatile data sharing in resetting VDS bit.
@@ -241,14 +223,14 @@ typedef struct
   *       0, that is, when the non volatile data segment is defined), the macro can be
   *       executed only when the Firewall is opened.
   */
-#define __HAL_FIREWALL_VOLATILEDATA_SHARED_DISABLE()                           \
-             do {                                                              \
-                  __IO uint32_t tmpreg;                                        \
-                  CLEAR_BIT(FIREWALL->CR, FW_CR_VDS) ;                         \
-                  /* Read bit back to ensure it is taken into account by IP */ \
-                  /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDS) ;                 \
-                  UNUSED(tmpreg);                                              \
+#define __HAL_FIREWALL_VOLATILEDATA_SHARED_DISABLE()                                   \
+             do {                                                                      \
+                  __IO uint32_t tmpreg;                                                \
+                  CLEAR_BIT(FIREWALL->CR, FW_CR_VDS) ;                                 \
+                  /* Read bit back to ensure it is taken into account by Peripheral */ \
+                  /* (introduce proper delay inside macro execution) */                \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDS) ;                         \
+                  UNUSED(tmpreg);                                                      \
                 } while(0)
 
 /** @brief Enable volatile data execution in setting VDE bit.
@@ -263,14 +245,14 @@ typedef struct
   *       0, that is, when the non volatile data segment is defined), the macro can be
   *       executed only when the Firewall is opened.
   */
-#define __HAL_FIREWALL_VOLATILEDATA_EXECUTION_ENABLE()                         \
-             do {                                                              \
-                  __IO uint32_t tmpreg;                                        \
-                  SET_BIT(FIREWALL->CR, FW_CR_VDE) ;                           \
-                  /* Read bit back to ensure it is taken into account by IP */ \
-                  /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDE) ;                 \
-                  UNUSED(tmpreg);                                              \
+#define __HAL_FIREWALL_VOLATILEDATA_EXECUTION_ENABLE()                                 \
+             do {                                                                      \
+                  __IO uint32_t tmpreg;                                                \
+                  SET_BIT(FIREWALL->CR, FW_CR_VDE) ;                                   \
+                  /* Read bit back to ensure it is taken into account by Peripheral */ \
+                  /* (introduce proper delay inside macro execution) */                \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDE) ;                         \
+                  UNUSED(tmpreg);                                                      \
                 } while(0)
 
 /** @brief Disable volatile data execution in resetting VDE bit.
@@ -283,14 +265,14 @@ typedef struct
   *       0, that is, when the non volatile data segment is defined), the macro can be
   *       executed only when the Firewall is opened.
   */
-#define __HAL_FIREWALL_VOLATILEDATA_EXECUTION_DISABLE()                           \
-             do {                                                              \
-                  __IO uint32_t tmpreg;                                        \
-                  CLEAR_BIT(FIREWALL->CR, FW_CR_VDE) ;                         \
-                  /* Read bit back to ensure it is taken into account by IP */ \
-                  /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDE) ;                 \
-                  UNUSED(tmpreg);                                              \
+#define __HAL_FIREWALL_VOLATILEDATA_EXECUTION_DISABLE()                                \
+             do {                                                                      \
+                  __IO uint32_t tmpreg;                                                \
+                  CLEAR_BIT(FIREWALL->CR, FW_CR_VDE) ;                                 \
+                  /* Read bit back to ensure it is taken into account by Peripheral */ \
+                  /* (introduce proper delay inside macro execution) */                \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDE) ;                         \
+                  UNUSED(tmpreg);                                                      \
                 } while(0)
 
 
@@ -367,6 +349,6 @@ void HAL_FIREWALL_DisablePreArmFlag(void);
 }
 #endif
 
-#endif /* __STM32L4xx_HAL_FIREWALL_H */
+#endif /* STM32L4xx_HAL_FIREWALL_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

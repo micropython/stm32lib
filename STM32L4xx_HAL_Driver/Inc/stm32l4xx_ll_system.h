@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_system.h
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   Header file of SYSTEM LL module.
   @verbatim
   ==============================================================================
@@ -21,36 +19,20 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_LL_SYSTEM_H
-#define __STM32L4xx_LL_SYSTEM_H
+#ifndef STM32L4xx_LL_SYSTEM_H
+#define STM32L4xx_LL_SYSTEM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,15 +59,12 @@ extern "C" {
   * @{
   */
 
-/* Defines used for position in the register */
-#define DBGMCU_REVID_POSITION         (uint32_t)POSITION_VAL(DBGMCU_IDCODE_REV_ID)
-
 /**
  * @brief Power-down in Run mode Flash key
  */
-#define FLASH_PDKEY1                  ((uint32_t)0x04152637U) /*!< Flash power down key1 */
-#define FLASH_PDKEY2                  ((uint32_t)0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1
-                                                                   to unlock the RUN_PD bit in FLASH_ACR */
+#define FLASH_PDKEY1                  0x04152637U /*!< Flash power down key1 */
+#define FLASH_PDKEY2                  0xFAFBFCFDU /*!< Flash power down key2: used with FLASH_PDKEY1
+                                                       to unlock the RUN_PD bit in FLASH_ACR */
 
 /**
   * @}
@@ -377,6 +356,19 @@ extern "C" {
 #define LL_FLASH_LATENCY_2                 FLASH_ACR_LATENCY_2WS   /*!< FLASH Two wait states */
 #define LL_FLASH_LATENCY_3                 FLASH_ACR_LATENCY_3WS   /*!< FLASH Three wait states */
 #define LL_FLASH_LATENCY_4                 FLASH_ACR_LATENCY_4WS   /*!< FLASH Four wait states */
+#if defined(FLASH_ACR_LATENCY_5WS)
+#define LL_FLASH_LATENCY_5                 FLASH_ACR_LATENCY_5WS   /*!< FLASH five wait state */
+#define LL_FLASH_LATENCY_6                 FLASH_ACR_LATENCY_6WS   /*!< FLASH six wait state */
+#define LL_FLASH_LATENCY_7                 FLASH_ACR_LATENCY_7WS   /*!< FLASH seven wait states */
+#define LL_FLASH_LATENCY_8                 FLASH_ACR_LATENCY_8WS   /*!< FLASH eight wait states */
+#define LL_FLASH_LATENCY_9                 FLASH_ACR_LATENCY_9WS   /*!< FLASH nine wait states */
+#define LL_FLASH_LATENCY_10                FLASH_ACR_LATENCY_10WS  /*!< FLASH ten wait states */
+#define LL_FLASH_LATENCY_11                FLASH_ACR_LATENCY_11WS  /*!< FLASH eleven wait states */
+#define LL_FLASH_LATENCY_12                FLASH_ACR_LATENCY_12WS  /*!< FLASH twelve wait states */
+#define LL_FLASH_LATENCY_13                FLASH_ACR_LATENCY_13WS  /*!< FLASH thirteen wait states */
+#define LL_FLASH_LATENCY_14                FLASH_ACR_LATENCY_14WS  /*!< FLASH fourteen wait states */
+#define LL_FLASH_LATENCY_15                FLASH_ACR_LATENCY_15WS  /*!< FLASH fifteen wait states */
+#endif
 /**
   * @}
   */
@@ -1049,7 +1041,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_REVID_POSITION);
+  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos);
 }
 
 /**
@@ -1390,6 +1382,19 @@ __STATIC_INLINE void LL_VREFBUF_SetTrimming(uint32_t Value)
   *         @arg @ref LL_FLASH_LATENCY_2
   *         @arg @ref LL_FLASH_LATENCY_3
   *         @arg @ref LL_FLASH_LATENCY_4
+  *         @arg @ref LL_FLASH_LATENCY_5 (*)
+  *         @arg @ref LL_FLASH_LATENCY_6 (*)
+  *         @arg @ref LL_FLASH_LATENCY_7 (*)
+  *         @arg @ref LL_FLASH_LATENCY_8 (*)
+  *         @arg @ref LL_FLASH_LATENCY_9 (*)
+  *         @arg @ref LL_FLASH_LATENCY_10 (*)
+  *         @arg @ref LL_FLASH_LATENCY_11 (*)
+  *         @arg @ref LL_FLASH_LATENCY_12 (*)
+  *         @arg @ref LL_FLASH_LATENCY_13 (*)
+  *         @arg @ref LL_FLASH_LATENCY_14 (*)
+  *         @arg @ref LL_FLASH_LATENCY_15 (*)
+  *
+  *         (*) value not defined in all devices.
   * @retval None
   */
 __STATIC_INLINE void LL_FLASH_SetLatency(uint32_t Latency)
@@ -1406,6 +1411,19 @@ __STATIC_INLINE void LL_FLASH_SetLatency(uint32_t Latency)
   *         @arg @ref LL_FLASH_LATENCY_2
   *         @arg @ref LL_FLASH_LATENCY_3
   *         @arg @ref LL_FLASH_LATENCY_4
+  *         @arg @ref LL_FLASH_LATENCY_5 (*)
+  *         @arg @ref LL_FLASH_LATENCY_6 (*)
+  *         @arg @ref LL_FLASH_LATENCY_7 (*)
+  *         @arg @ref LL_FLASH_LATENCY_8 (*)
+  *         @arg @ref LL_FLASH_LATENCY_9 (*)
+  *         @arg @ref LL_FLASH_LATENCY_10 (*)
+  *         @arg @ref LL_FLASH_LATENCY_11 (*)
+  *         @arg @ref LL_FLASH_LATENCY_12 (*)
+  *         @arg @ref LL_FLASH_LATENCY_13 (*)
+  *         @arg @ref LL_FLASH_LATENCY_14 (*)
+  *         @arg @ref LL_FLASH_LATENCY_15 (*)
+  *
+  *         (*) value not defined in all devices.
   */
 __STATIC_INLINE uint32_t LL_FLASH_GetLatency(void)
 {
@@ -1605,6 +1623,6 @@ __STATIC_INLINE void LL_FLASH_DisableSleepPowerDown(void)
 }
 #endif
 
-#endif /* __STM32L4xx_LL_SYSTEM_H */
+#endif /* STM32L4xx_LL_SYSTEM_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

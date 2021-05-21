@@ -2,45 +2,27 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_HAL_CRC_H
-#define __STM32L4xx_HAL_CRC_H
+#ifndef STM32L4xx_HAL_CRC_H
+#define STM32L4xx_HAL_CRC_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -55,7 +37,6 @@
   */
 
 /* Exported types ------------------------------------------------------------*/
-
 /** @defgroup CRC_Exported_Types CRC Exported Types
   * @{
   */
@@ -65,14 +46,12 @@
   */
 typedef enum
 {
-  HAL_CRC_STATE_RESET     = 0x00,  /*!< CRC not yet initialized or disabled */
-  HAL_CRC_STATE_READY     = 0x01,  /*!< CRC initialized and ready for use   */
-  HAL_CRC_STATE_BUSY      = 0x02,  /*!< CRC internal process is ongoing     */
-  HAL_CRC_STATE_TIMEOUT   = 0x03,  /*!< CRC timeout state                   */
-  HAL_CRC_STATE_ERROR     = 0x04   /*!< CRC error state                     */
-}HAL_CRC_StateTypeDef;
-
-
+  HAL_CRC_STATE_RESET     = 0x00U,  /*!< CRC not yet initialized or disabled */
+  HAL_CRC_STATE_READY     = 0x01U,  /*!< CRC initialized and ready for use   */
+  HAL_CRC_STATE_BUSY      = 0x02U,  /*!< CRC internal process is ongoing     */
+  HAL_CRC_STATE_TIMEOUT   = 0x03U,  /*!< CRC timeout state                   */
+  HAL_CRC_STATE_ERROR     = 0x04U   /*!< CRC error state                     */
+} HAL_CRC_StateTypeDef;
 
 /**
   * @brief CRC Init Structure definition
@@ -116,9 +95,7 @@ typedef struct
                                             Can be either
                                             @arg @ref CRC_OUTPUTDATA_INVERSION_DISABLE   no CRC inversion,
                                             @arg @ref CRC_OUTPUTDATA_INVERSION_ENABLE    CRC 0x11223344 is converted into 0x22CC4488 */
-}CRC_InitTypeDef;
-
-
+} CRC_InitTypeDef;
 
 /**
   * @brief  CRC Handle Structure definition
@@ -141,9 +118,7 @@ typedef struct
 
                                            Note that constant CRC_INPUT_FORMAT_UNDEFINED is defined but an initialization error
                                            must occur if InputBufferFormat is not one of the three values listed above  */
-}CRC_HandleTypeDef;
-
-
+} CRC_HandleTypeDef;
 /**
   * @}
   */
@@ -156,7 +131,7 @@ typedef struct
 /** @defgroup CRC_Default_Polynomial_Value    Default CRC generating polynomial
   * @{
   */
-#define DEFAULT_CRC32_POLY      0x04C11DB7  /*!<  X^32 + X^26 + X^23 + X^22 + X^16 + X^12 + X^11 + X^10 +X^8 + X^7 + X^5 + X^4 + X^2+ X +1 */
+#define DEFAULT_CRC32_POLY      0x04C11DB7U  /*!<  X^32 + X^26 + X^23 + X^22 + X^16 + X^12 + X^11 + X^10 +X^8 + X^7 + X^5 + X^4 + X^2+ X +1 */
 /**
   * @}
   */
@@ -164,7 +139,7 @@ typedef struct
 /** @defgroup CRC_Default_InitValue    Default CRC computation initialization value
   * @{
   */
-#define DEFAULT_CRC_INITVALUE   0xFFFFFFFF  /*!< Initial CRC default value */
+#define DEFAULT_CRC_INITVALUE   0xFFFFFFFFU  /*!< Initial CRC default value */
 /**
   * @}
   */
@@ -172,8 +147,8 @@ typedef struct
 /** @defgroup CRC_Default_Polynomial    Indicates whether or not default polynomial is used
   * @{
   */
-#define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00)  /*!< Enable default generating polynomial 0x04C11DB7  */
-#define DEFAULT_POLYNOMIAL_DISABLE      ((uint8_t)0x01)  /*!< Disable default generating polynomial 0x04C11DB7 */
+#define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00U)  /*!< Enable default generating polynomial 0x04C11DB7  */
+#define DEFAULT_POLYNOMIAL_DISABLE      ((uint8_t)0x01U)  /*!< Disable default generating polynomial 0x04C11DB7 */
 /**
   * @}
   */
@@ -181,19 +156,19 @@ typedef struct
 /** @defgroup CRC_Default_InitValue_Use    Indicates whether or not default init value is used
   * @{
   */
-#define DEFAULT_INIT_VALUE_ENABLE      ((uint8_t)0x00) /*!< Enable initial CRC default value  */
-#define DEFAULT_INIT_VALUE_DISABLE     ((uint8_t)0x01) /*!< Disable initial CRC default value */
+#define DEFAULT_INIT_VALUE_ENABLE      ((uint8_t)0x00U) /*!< Enable initial CRC default value  */
+#define DEFAULT_INIT_VALUE_DISABLE     ((uint8_t)0x01U) /*!< Disable initial CRC default value */
 /**
   * @}
   */
 
-/** @defgroup CRC_Polynomial_Sizes Polynomial sizes to configure the IP
+/** @defgroup CRC_Polynomial_Sizes Polynomial sizes to configure the peripheral
   * @{
   */
-#define CRC_POLYLENGTH_32B                  ((uint32_t)0x00000000)        /*!< Resort to a 32-bit long generating polynomial */
-#define CRC_POLYLENGTH_16B                  ((uint32_t)CRC_CR_POLYSIZE_0) /*!< Resort to a 16-bit long generating polynomial */
-#define CRC_POLYLENGTH_8B                   ((uint32_t)CRC_CR_POLYSIZE_1) /*!< Resort to a 8-bit long generating polynomial  */
-#define CRC_POLYLENGTH_7B                   ((uint32_t)CRC_CR_POLYSIZE)   /*!< Resort to a 7-bit long generating polynomial  */
+#define CRC_POLYLENGTH_32B                  0x00000000U        /*!< Resort to a 32-bit long generating polynomial */
+#define CRC_POLYLENGTH_16B                  CRC_CR_POLYSIZE_0  /*!< Resort to a 16-bit long generating polynomial */
+#define CRC_POLYLENGTH_8B                   CRC_CR_POLYSIZE_1  /*!< Resort to a 8-bit long generating polynomial  */
+#define CRC_POLYLENGTH_7B                   CRC_CR_POLYSIZE    /*!< Resort to a 7-bit long generating polynomial  */
 /**
   * @}
   */
@@ -201,10 +176,10 @@ typedef struct
 /** @defgroup CRC_Polynomial_Size_Definitions CRC polynomial possible sizes actual definitions
   * @{
   */
-#define HAL_CRC_LENGTH_32B     32          /*!< 32-bit long CRC */
-#define HAL_CRC_LENGTH_16B     16          /*!< 16-bit long CRC */
-#define HAL_CRC_LENGTH_8B       8          /*!< 8-bit long CRC  */
-#define HAL_CRC_LENGTH_7B       7          /*!< 7-bit long CRC  */
+#define HAL_CRC_LENGTH_32B     32U          /*!< 32-bit long CRC */
+#define HAL_CRC_LENGTH_16B     16U          /*!< 16-bit long CRC */
+#define HAL_CRC_LENGTH_8B       8U          /*!< 8-bit long CRC  */
+#define HAL_CRC_LENGTH_7B       7U          /*!< 7-bit long CRC  */
 /**
   * @}
   */
@@ -216,10 +191,10 @@ typedef struct
  * an error is triggered in HAL_CRC_Init() if InputDataFormat field is set
  * to CRC_INPUT_FORMAT_UNDEFINED: the format MUST be defined by the user for
  * the CRC APIs to provide a correct result */
-#define CRC_INPUTDATA_FORMAT_UNDEFINED             ((uint32_t)0x00000000)  /*!< Undefined input data format    */
-#define CRC_INPUTDATA_FORMAT_BYTES                 ((uint32_t)0x00000001)  /*!< Input data in byte format      */
-#define CRC_INPUTDATA_FORMAT_HALFWORDS             ((uint32_t)0x00000002)  /*!< Input data in half-word format */
-#define CRC_INPUTDATA_FORMAT_WORDS                 ((uint32_t)0x00000003)  /*!< Input data in word format      */
+#define CRC_INPUTDATA_FORMAT_UNDEFINED             0x00000000U  /*!< Undefined input data format    */
+#define CRC_INPUTDATA_FORMAT_BYTES                 0x00000001U  /*!< Input data in byte format      */
+#define CRC_INPUTDATA_FORMAT_HALFWORDS             0x00000002U  /*!< Input data in half-word format */
+#define CRC_INPUTDATA_FORMAT_WORDS                 0x00000003U  /*!< Input data in word format      */
 /**
   * @}
   */
@@ -237,45 +212,46 @@ typedef struct
   * @}
   */
 
-
 /* Exported macros -----------------------------------------------------------*/
 /** @defgroup CRC_Exported_Macros CRC Exported Macros
   * @{
   */
 
 /** @brief Reset CRC handle state.
-  * @param  __HANDLE__: CRC handle.
+  * @param  __HANDLE__ CRC handle.
   * @retval None
   */
 #define __HAL_CRC_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_CRC_STATE_RESET)
 
 /**
   * @brief  Reset CRC Data Register.
-  * @param  __HANDLE__: CRC handle
+  * @param  __HANDLE__ CRC handle
   * @retval None
   */
 #define __HAL_CRC_DR_RESET(__HANDLE__) ((__HANDLE__)->Instance->CR |= CRC_CR_RESET)
 
 /**
   * @brief  Set CRC INIT non-default value
-  * @param  __HANDLE__: CRC handle
-  * @param  __INIT__: 32-bit initial value
+  * @param  __HANDLE__ CRC handle
+  * @param  __INIT__ 32-bit initial value
   * @retval None
   */
 #define __HAL_CRC_INITIALCRCVALUE_CONFIG(__HANDLE__, __INIT__) ((__HANDLE__)->Instance->INIT = (__INIT__))
 
 /**
-  * @brief Store a 8-bit data in the Independent Data(ID) register.
-  * @param __HANDLE__: CRC handle
-  * @param __VALUE__: 8-bit value to be stored in the ID register
+  * @brief Store data in the Independent Data (ID) register.
+  * @param __HANDLE__ CRC handle
+  * @param __VALUE__  Value to be stored in the ID register
+  * @note  Refer to the Reference Manual to get the authorized __VALUE__ length in bits
   * @retval None
   */
 #define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (WRITE_REG((__HANDLE__)->Instance->IDR, (__VALUE__)))
 
 /**
-  * @brief Return the 8-bit data stored in the Independent Data(ID) register.
-  * @param __HANDLE__: CRC handle
-  * @retval 8-bit value of the ID register
+  * @brief Return the data stored in the Independent Data (ID) register.
+  * @param __HANDLE__ CRC handle
+  * @note  Refer to the Reference Manual to get the authorized __VALUE__ length in bits
+  * @retval Value of the ID register
   */
 #define __HAL_CRC_GET_IDR(__HANDLE__) (((__HANDLE__)->Instance->IDR) & CRC_IDR_IDR)
 /**
@@ -284,7 +260,7 @@ typedef struct
 
 
 /* Private macros --------------------------------------------------------*/
-/** @addtogroup  CRC_Private_Macros   CRC Private Macros
+/** @defgroup  CRC_Private_Macros CRC Private Macros
   * @{
   */
 
@@ -300,7 +276,7 @@ typedef struct
                                        ((LENGTH) == CRC_POLYLENGTH_8B)  || \
                                        ((LENGTH) == CRC_POLYLENGTH_7B))
 
-#define IS_CRC_INPUTDATA_FORMAT(FORMAT)           (((FORMAT) == CRC_INPUTDATA_FORMAT_BYTES) || \
+#define IS_CRC_INPUTDATA_FORMAT(FORMAT)           (((FORMAT) == CRC_INPUTDATA_FORMAT_BYTES)     || \
                                                    ((FORMAT) == CRC_INPUTDATA_FORMAT_HALFWORDS) || \
                                                    ((FORMAT) == CRC_INPUTDATA_FORMAT_WORDS))
 
@@ -321,7 +297,7 @@ typedef struct
   * @{
   */
 HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc);
-HAL_StatusTypeDef HAL_CRC_DeInit (CRC_HandleTypeDef *hcrc);
+HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc);
 void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc);
 void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc);
 /**
@@ -363,6 +339,6 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 }
 #endif
 
-#endif /* __STM32L4xx_HAL_CRC_H */
+#endif /* STM32L4xx_HAL_CRC_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
