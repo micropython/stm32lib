@@ -2,42 +2,24 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_crc.h
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   Header file of CRC LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_LL_CRC_H
-#define __STM32L4xx_LL_CRC_H
+#ifndef STM32L4xx_LL_CRC_H
+#define STM32L4xx_LL_CRC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,7 +118,7 @@ extern "C" {
   * @param  __VALUE__ Value to be written in the register
   * @retval None
   */
-#define LL_CRC_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG(__INSTANCE__->__REG__, (__VALUE__))
+#define LL_CRC_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG(__INSTANCE__->__REG__, __VALUE__)
 
 /**
   * @brief  Read a value in CRC register
@@ -354,7 +336,10 @@ __STATIC_INLINE void LL_CRC_FeedData32(CRC_TypeDef *CRCx, uint32_t InData)
   */
 __STATIC_INLINE void LL_CRC_FeedData16(CRC_TypeDef *CRCx, uint16_t InData)
 {
-  *(uint16_t __IO *)(&CRCx->DR) = (uint16_t) InData;
+  __IO uint16_t *pReg;
+
+  pReg = (__IO uint16_t *)(__IO void *)(&CRCx->DR);                             /* Derogation MisraC2012 R.11.5 */
+  *pReg = InData;
 }
 
 /**
@@ -418,10 +403,11 @@ __STATIC_INLINE uint8_t LL_CRC_ReadData7(CRC_TypeDef *CRCx)
 
 /**
   * @brief  Return data stored in the Independent Data(IDR) register.
-  * @note   This register can be used as a temporary storage location for one byte.
+  * @note   This register can be used as a temporary storage location.
+  * @note   Refer to the Reference Manual to get the authorized data length in bits.
   * @rmtoll IDR          IDR           LL_CRC_Read_IDR
   * @param  CRCx CRC Instance
-  * @retval Value stored in CRC_IDR register (General-purpose 8-bit data register).
+  * @retval Value stored in CRC_IDR register
   */
 __STATIC_INLINE uint32_t LL_CRC_Read_IDR(CRC_TypeDef *CRCx)
 {
@@ -430,15 +416,20 @@ __STATIC_INLINE uint32_t LL_CRC_Read_IDR(CRC_TypeDef *CRCx)
 
 /**
   * @brief  Store data in the Independent Data(IDR) register.
-  * @note   This register can be used as a temporary storage location for one byte.
+  * @note   This register can be used as a temporary storage location.
+  * @note   Refer to the Reference Manual to get the authorized data length in bits.
   * @rmtoll IDR          IDR           LL_CRC_Write_IDR
   * @param  CRCx CRC Instance
-  * @param  InData value to be stored in CRC_IDR register (8-bit) between between Min_Data=0 and Max_Data=0xFF
+  * @param  InData value to be stored in CRC_IDR register
   * @retval None
   */
 __STATIC_INLINE void LL_CRC_Write_IDR(CRC_TypeDef *CRCx, uint32_t InData)
 {
+#if (CRC_IDR_IDR == 0x0FFU)
   *((uint8_t __IO *)(&CRCx->IDR)) = (uint8_t) InData;
+#else
+  WRITE_REG(CRCx->IDR, InData);
+#endif
 }
 /**
   * @}
@@ -474,6 +465,6 @@ ErrorStatus LL_CRC_DeInit(CRC_TypeDef *CRCx);
 }
 #endif
 
-#endif /* __STM32L4xx_LL_CRC_H */
+#endif /* STM32L4xx_LL_CRC_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

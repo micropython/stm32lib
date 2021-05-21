@@ -2,45 +2,27 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   Header file of I2C HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_HAL_I2C_EX_H
-#define __STM32L4xx_HAL_I2C_EX_H
+#ifndef STM32L4xx_HAL_I2C_EX_H
+#define STM32L4xx_HAL_I2C_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -56,7 +38,6 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-
 /** @defgroup I2CEx_Exported_Constants I2C Extended Exported Constants
   * @{
   */
@@ -104,24 +85,51 @@
   */
 
 /* Exported macro ------------------------------------------------------------*/
-/* Exported functions --------------------------------------------------------*/
+/** @defgroup I2CEx_Exported_Macros I2C Extended Exported Macros
+  * @{
+  */
 
+/**
+  * @}
+  */
+
+/* Exported functions --------------------------------------------------------*/
 /** @addtogroup I2CEx_Exported_Functions I2C Extended Exported Functions
   * @{
   */
 
-/** @addtogroup I2CEx_Exported_Functions_Group1 Extended features functions
-  * @brief    Extended features functions
+/** @addtogroup I2CEx_Exported_Functions_Group1 I2C Extended Filter Mode Functions
   * @{
   */
-
 /* Peripheral Control functions  ************************************************/
 HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter);
 HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter);
+/**
+  * @}
+  */
+
+/** @addtogroup I2CEx_Exported_Functions_Group2 I2C Extended WakeUp Mode Functions
+  * @{
+  */
 HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp(I2C_HandleTypeDef *hi2c);
 HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp(I2C_HandleTypeDef *hi2c);
+/**
+  * @}
+  */
+
+/** @addtogroup I2CEx_Exported_Functions_Group3 I2C Extended FastModePlus Functions
+  * @{
+  */
 void HAL_I2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus);
 void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
+/**
+  * @}
+  */
+
+
+/**
+  * @}
+  */
 
 /* Private constants ---------------------------------------------------------*/
 /** @defgroup I2CEx_Private_Constants I2C Extended Private Constants
@@ -137,7 +145,7 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
   * @{
   */
 #define IS_I2C_ANALOG_FILTER(FILTER)    (((FILTER) == I2C_ANALOGFILTER_ENABLE) || \
-                                          ((FILTER) == I2C_ANALOGFILTER_DISABLE))
+                                         ((FILTER) == I2C_ANALOGFILTER_DISABLE))
 
 #define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000FU)
 
@@ -171,18 +179,10 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
   * @}
   */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __STM32L4xx_HAL_I2C_EX_H */
+#endif /* STM32L4xx_HAL_I2C_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
