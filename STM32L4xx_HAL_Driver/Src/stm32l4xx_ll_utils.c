@@ -2,35 +2,17 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_utils.c
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   UTILS LL module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -59,8 +41,14 @@
 /** @addtogroup UTILS_LL_Private_Constants
   * @{
   */
-#define UTILS_MAX_FREQUENCY_SCALE1  80000000U        /*!< Maximum frequency for system clock at power scale1, in Hz */
-#define UTILS_MAX_FREQUENCY_SCALE2  26000000U        /*!< Maximum frequency for system clock at power scale2, in Hz */
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+#define UTILS_MAX_FREQUENCY_SCALE1  120000000U       /*!< Maximum frequency for system clock at power scale1, in Hz */
+#define UTILS_MAX_FREQUENCY_SCALE2   26000000U       /*!< Maximum frequency for system clock at power scale2, in Hz */
+#else
+#define UTILS_MAX_FREQUENCY_SCALE1   80000000U       /*!< Maximum frequency for system clock at power scale1, in Hz */
+#define UTILS_MAX_FREQUENCY_SCALE2   26000000U       /*!< Maximum frequency for system clock at power scale2, in Hz */
+#endif
 
 /* Defines used for PLL range */
 #define UTILS_PLLVCO_INPUT_MIN        4000000U       /*!< Frequency min for PLLVCO input, in Hz   */
@@ -73,6 +61,16 @@
 #define UTILS_HSE_FREQUENCY_MAX     48000000U        /*!< Frequency max for HSE frequency, in Hz   */
 
 /* Defines used for FLASH latency according to HCLK Frequency */
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+#define UTILS_SCALE1_LATENCY1_FREQ   20000000U       /*!< HCLK frequency to set FLASH latency 1 in power scale 1 */
+#define UTILS_SCALE1_LATENCY2_FREQ   40000000U       /*!< HCLK frequency to set FLASH latency 2 in power scale 1 */
+#define UTILS_SCALE1_LATENCY3_FREQ   60000000U       /*!< HCLK frequency to set FLASH latency 3 in power scale 1 */
+#define UTILS_SCALE1_LATENCY4_FREQ   80000000U       /*!< HCLK frequency to set FLASH latency 4 in power scale 1 */
+#define UTILS_SCALE1_LATENCY5_FREQ  100000000U       /*!< HCLK frequency to set FLASH latency 4 in power scale 1 */
+#define UTILS_SCALE2_LATENCY1_FREQ    8000000U       /*!< HCLK frequency to set FLASH latency 1 in power scale 2 */
+#define UTILS_SCALE2_LATENCY2_FREQ   16000000U       /*!< HCLK frequency to set FLASH latency 2 in power scale 2 */
+#else
 #define UTILS_SCALE1_LATENCY1_FREQ   16000000U       /*!< HCLK frequency to set FLASH latency 1 in power scale 1 */
 #define UTILS_SCALE1_LATENCY2_FREQ   32000000U       /*!< HCLK frequency to set FLASH latency 2 in power scale 1 */
 #define UTILS_SCALE1_LATENCY3_FREQ   48000000U       /*!< HCLK frequency to set FLASH latency 3 in power scale 1 */
@@ -80,6 +78,7 @@
 #define UTILS_SCALE2_LATENCY1_FREQ    6000000U       /*!< HCLK frequency to set FLASH latency 1 in power scale 2 */
 #define UTILS_SCALE2_LATENCY2_FREQ   12000000U       /*!< HCLK frequency to set FLASH latency 2 in power scale 2 */
 #define UTILS_SCALE2_LATENCY3_FREQ   18000000U       /*!< HCLK frequency to set FLASH latency 3 in power scale 2 */
+#endif
 /**
   * @}
   */
@@ -119,7 +118,7 @@
                                         || ((__VALUE__) == LL_RCC_PLLM_DIV_7) \
                                         || ((__VALUE__) == LL_RCC_PLLM_DIV_8))
 
-#define IS_LL_UTILS_PLLN_VALUE(__VALUE__) ((8 <= (__VALUE__)) && ((__VALUE__) <= 86))
+#define IS_LL_UTILS_PLLN_VALUE(__VALUE__) ((8U <= (__VALUE__)) && ((__VALUE__) <= 86U))
 
 #define IS_LL_UTILS_PLLR_VALUE(__VALUE__) (((__VALUE__) == LL_RCC_PLLR_DIV_2) \
                                         || ((__VALUE__) == LL_RCC_PLLR_DIV_4) \
@@ -146,7 +145,6 @@
   */
 static uint32_t    UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency,
                                                LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct);
-static ErrorStatus UTILS_SetFlashLatency(uint32_t HCLK_Frequency);
 static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 static ErrorStatus UTILS_PLL_IsBusy(void);
 /**
@@ -189,20 +187,22 @@ void LL_Init1msTick(uint32_t HCLKFrequency)
 void LL_mDelay(uint32_t Delay)
 {
   __IO uint32_t  tmp = SysTick->CTRL;  /* Clear the COUNTFLAG first */
+  uint32_t tmpDelay = Delay;
+
   /* Add this code to indicate that local variable is not used */
   ((void)tmp);
 
   /* Add a period to guaranty minimum wait */
-  if(Delay < LL_MAX_DELAY)
+  if(tmpDelay < LL_MAX_DELAY)
   {
-    Delay++;
+    tmpDelay++;
   }
 
-  while (Delay)
+  while (tmpDelay != 0U)
   {
     if((SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) != 0U)
     {
-      Delay--;
+      tmpDelay--;
     }
   }
 }
@@ -221,29 +221,51 @@ void LL_mDelay(uint32_t Delay)
     [..]
          System, AHB and APB buses clocks configuration
 
-         (+) The maximum frequency of the SYSCLK, HCLK, PCLK1 and PCLK2 is 80000000 Hz.
+         (+) The maximum frequency of the SYSCLK, HCLK, PCLK1 and PCLK2 is
+             120000000 Hz for STM32L4Rx/STM32L4Sx devices and 80000000 Hz for others.
   @endverbatim
   @internal
              Depending on the device voltage range, the maximum frequency should be
              adapted accordingly:
 
-             (++)  Table 1. HCLK clock frequency.
-             (++)  +-------------------------------------------------------+
-             (++)  | Latency         |    HCLK clock frequency (MHz)       |
-             (++)  |                 |-------------------------------------|
-             (++)  |                 | voltage range 1  | voltage range 2  |
-             (++)  |                 |      1.2 V       |     1.0 V        |
-             (++)  |-----------------|------------------|------------------|
-             (++)  |0WS(1 CPU cycles)|  0 < HCLK <= 16  |  0 < HCLK <= 6   |
-             (++)  |-----------------|------------------|------------------|
-             (++)  |1WS(2 CPU cycles)| 16 < HCLK <= 32  |  6 < HCLK <= 12  |
-             (++)  |-----------------|------------------|------------------|
-             (++)  |2WS(3 CPU cycles)| 32 < HCLK <= 48  | 12 < HCLK <= 18  |
-             (++)  |-----------------|------------------|------------------|
-             (++)  |3WS(4 CPU cycles)| 48 < HCLK <= 64  | 18 < HCLK <= 26  |
-             (++)  |-----------------|------------------|------------------|
-             (++)  |4WS(5 CPU cycles)| 64 < HCLK <= 80  | 18 < HCLK <= 26  |
-             (++)  +-------------------------------------------------------+
+             (++) Table 1. HCLK clock frequency for STM32L4+ Series devices
+             (++) +--------------------------------------------------------+
+             (++) | Latency         |     HCLK clock frequency (MHz)       |
+             (++) |                 |--------------------------------------|
+             (++) |                 |  voltage range 1  | voltage range 2  |
+             (++) |                 |       1.2 V       |     1.0 V        |
+             (++) |-----------------|-------------------|------------------|
+             (++) |0WS(1 CPU cycles)|   0 < HCLK <= 20  |  0 < HCLK <= 8   |
+             (++) |-----------------|-------------------|------------------|
+             (++) |1WS(2 CPU cycles)|  20 < HCLK <= 40  |  8 < HCLK <= 16  |
+             (++) |-----------------|-------------------|------------------|
+             (++) |2WS(3 CPU cycles)|  40 < HCLK <= 60  | 16 < HCLK <= 26  |
+             (++) |-----------------|-------------------|------------------|
+             (++) |3WS(4 CPU cycles)|  60 < HCLK <= 80  | 16 < HCLK <= 26  |
+             (++) |-----------------|-------------------|------------------|
+             (++) |4WS(5 CPU cycles)|  80 < HCLK <= 100 | 16 < HCLK <= 26  |
+             (++) |-----------------|-------------------|------------------|
+             (++) |5WS(6 CPU cycles)| 100 < HCLK <= 120 | 16 < HCLK <= 26  |
+             (++) +--------------------------------------------------------+
+
+             (++) Table 2. HCLK clock frequency for STM32L4 Series devices
+             (++) +-------------------------------------------------------+
+             (++) | Latency         |    HCLK clock frequency (MHz)       |
+             (++) |                 |-------------------------------------|
+             (++) |                 | voltage range 1  | voltage range 2  |
+             (++) |                 |      1.2 V       |     1.0 V        |
+             (++) |-----------------|------------------|------------------|
+             (++) |0WS(1 CPU cycles)|  0 < HCLK <= 16  |  0 < HCLK <= 6   |
+             (++) |-----------------|------------------|------------------|
+             (++) |1WS(2 CPU cycles)| 16 < HCLK <= 32  |  6 < HCLK <= 12  |
+             (++) |-----------------|------------------|------------------|
+             (++) |2WS(3 CPU cycles)| 32 < HCLK <= 48  | 12 < HCLK <= 18  |
+             (++) |-----------------|------------------|------------------|
+             (++) |3WS(4 CPU cycles)| 48 < HCLK <= 64  | 18 < HCLK <= 26  |
+             (++) |-----------------|------------------|------------------|
+             (++) |4WS(5 CPU cycles)| 64 < HCLK <= 80  | 18 < HCLK <= 26  |
+             (++) +-------------------------------------------------------+
+
   @endinternal
   * @{
   */
@@ -261,13 +283,157 @@ void LL_SetSystemCoreClock(uint32_t HCLKFrequency)
 }
 
 /**
+  * @brief  Update number of Flash wait states in line with new frequency and current
+            voltage range.
+  * @param  HCLKFrequency  HCLK frequency
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: Latency has been modified
+  *          - ERROR: Latency cannot be modified
+  */
+ErrorStatus LL_SetFlashLatency(uint32_t HCLKFrequency)
+{
+  ErrorStatus status = SUCCESS;
+
+  uint32_t latency = LL_FLASH_LATENCY_0;  /* default value 0WS */
+
+  /* Frequency cannot be equal to 0 or greater than max clock */
+  if ((HCLKFrequency == 0U) || (HCLKFrequency > UTILS_MAX_FREQUENCY_SCALE1))
+  {
+    status = ERROR;
+  }
+  else
+  {
+    if(LL_PWR_GetRegulVoltageScaling() == LL_PWR_REGU_VOLTAGE_SCALE1)
+    {
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+      if(HCLKFrequency > UTILS_SCALE1_LATENCY5_FREQ)
+      {
+        /* 100 < HCLK <= 120 => 5WS (6 CPU cycles) */
+        latency = LL_FLASH_LATENCY_5;
+      }
+      else if(HCLKFrequency > UTILS_SCALE1_LATENCY4_FREQ)
+      {
+        /* 80 < HCLK <= 100 => 4WS (5 CPU cycles) */
+        latency = LL_FLASH_LATENCY_4;
+      }
+      else if(HCLKFrequency > UTILS_SCALE1_LATENCY3_FREQ)
+      {
+        /* 60 < HCLK <= 80 => 3WS (4 CPU cycles) */
+        latency = LL_FLASH_LATENCY_3;
+      }
+      else if(HCLKFrequency > UTILS_SCALE1_LATENCY2_FREQ)
+      {
+        /* 40 < HCLK <= 20 => 2WS (3 CPU cycles) */
+        latency = LL_FLASH_LATENCY_2;
+      }
+      else
+      {
+        if(HCLKFrequency > UTILS_SCALE1_LATENCY1_FREQ)
+        {
+          /* 20 < HCLK <= 40 => 1WS (2 CPU cycles) */
+          latency = LL_FLASH_LATENCY_1;
+        }
+        /* else HCLKFrequency <= 10MHz default LL_FLASH_LATENCY_0 0WS */
+      }
+#else
+      if(HCLKFrequency > UTILS_SCALE1_LATENCY4_FREQ)
+      {
+        /* 64 < HCLK <= 80 => 4WS (5 CPU cycles) */
+        latency = LL_FLASH_LATENCY_4;
+      }
+      else if(HCLKFrequency > UTILS_SCALE1_LATENCY3_FREQ)
+      {
+        /* 48 < HCLK <= 64 => 3WS (4 CPU cycles) */
+        latency = LL_FLASH_LATENCY_3;
+      }
+      else if(HCLKFrequency > UTILS_SCALE1_LATENCY2_FREQ)
+      {
+        /* 32 < HCLK <= 48 => 2WS (3 CPU cycles) */
+        latency = LL_FLASH_LATENCY_2;
+      }
+      else
+      {
+        if(HCLKFrequency > UTILS_SCALE1_LATENCY1_FREQ)
+        {
+          /* 16 < HCLK <= 32 => 1WS (2 CPU cycles) */
+          latency = LL_FLASH_LATENCY_1;
+        }
+        /* else HCLKFrequency <= 16MHz default LL_FLASH_LATENCY_0 0WS */
+      }
+#endif
+    }
+    else /* SCALE2 */
+    {
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+      if(HCLKFrequency > UTILS_MAX_FREQUENCY_SCALE2)
+      {
+        /* Unexpected HCLK > 26 */
+        status = ERROR;
+      }
+      else if(HCLKFrequency > UTILS_SCALE2_LATENCY2_FREQ)
+      {
+        /* 16 < HCLK <= 26 => 2WS (3 CPU cycles) */
+        latency = LL_FLASH_LATENCY_2;
+      }
+      else
+      {
+        if(HCLKFrequency > UTILS_SCALE2_LATENCY1_FREQ)
+        {
+          /* 8 < HCLK <= 16 => 1WS (2 CPU cycles) */
+          latency = LL_FLASH_LATENCY_1;
+        }
+        /* else HCLKFrequency <= 8MHz default LL_FLASH_LATENCY_0 0WS */
+      }
+#else
+      if(HCLKFrequency > UTILS_MAX_FREQUENCY_SCALE2)
+      {
+        /* Unexpected HCLK > 26 */
+        status = ERROR;
+      }
+      else if(HCLKFrequency > UTILS_SCALE2_LATENCY3_FREQ)
+      {
+        /* 18 < HCLK <= 26 => 3WS (4 CPU cycles) */
+        latency = LL_FLASH_LATENCY_3;
+      }
+      else if(HCLKFrequency > UTILS_SCALE2_LATENCY2_FREQ)
+      {
+        /* 12 < HCLK <= 18 => 2WS (3 CPU cycles) */
+        latency = LL_FLASH_LATENCY_2;
+      }
+      else
+      {
+        if(HCLKFrequency > UTILS_SCALE2_LATENCY1_FREQ)
+        {
+          /* 6 < HCLK <= 12 => 1WS (2 CPU cycles) */
+          latency = LL_FLASH_LATENCY_1;
+        }
+        /* else HCLKFrequency <= 6MHz default LL_FLASH_LATENCY_0 0WS */
+      }
+#endif
+    }
+
+    LL_FLASH_SetLatency(latency);
+
+    /* Check that the new number of wait states is taken into account to access the Flash
+       memory by reading the FLASH_ACR register */
+    if(LL_FLASH_GetLatency() != latency)
+    {
+      status = ERROR;
+    }
+  }
+  return status;
+}
+
+/**
   * @brief  This function configures system clock with MSI as clock source of the PLL
   * @note   The application needs to ensure that PLL, PLLSAI1 and/or PLLSAI2 are disabled.
   * @note   Function is based on the following formula:
   *         - PLL output frequency = (((MSI frequency / PLLM) * PLLN) / PLLR)
   *         - PLLM: ensure that the VCO input frequency ranges from 4 to 16 MHz (PLLVCO_input = MSI frequency / PLLM)
   *         - PLLN: ensure that the VCO output frequency is between 64 and 344 MHz (PLLVCO_output = PLLVCO_input * PLLN)
-  *         - PLLR: ensure that max frequency at 80000000 Hz is reached (PLLVCO_output / PLLR)
+  *         - PLLR: ensure that max frequency at 120000000 Hz is reached (PLLVCO_output / PLLR)
   * @param  UTILS_PLLInitStruct pointer to a @ref LL_UTILS_PLLInitTypeDef structure that contains
   *                             the configuration information for the PLL.
   * @param  UTILS_ClkInitStruct pointer to a @ref LL_UTILS_ClkInitTypeDef structure that contains
@@ -280,13 +446,17 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
                                          LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct)
 {
   ErrorStatus status = SUCCESS;
-  uint32_t pllfreq = 0U, msi_range = 0U;
+  uint32_t pllfreq, msi_range;
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+  uint32_t hpre = 0U;  /* Set default value */
+#endif
 
   /* Check if one of the PLL is enabled */
   if(UTILS_PLL_IsBusy() == SUCCESS)
   {
     /* Get the current MSI range */
-    if(LL_RCC_MSI_IsEnabledRangeSelect())
+    if(LL_RCC_MSI_IsEnabledRangeSelect() != 0U)
     {
       msi_range =  LL_RCC_MSI_GetRange();
       switch (msi_range)
@@ -297,7 +467,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
         case LL_RCC_MSIRANGE_3:     /* MSI = 800 KHz  */
         case LL_RCC_MSIRANGE_4:     /* MSI = 1 MHz    */
         case LL_RCC_MSIRANGE_5:     /* MSI = 2 MHz    */
-          /* PLLVCO input frequency can not in the range from 4 to 16 MHz*/
+          /* PLLVCO input frequency is not in the range from 4 to 16 MHz*/
           status = ERROR;
           break;
 
@@ -350,8 +520,36 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
       LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_MSI, UTILS_PLLInitStruct->PLLM, UTILS_PLLInitStruct->PLLN,
                                   UTILS_PLLInitStruct->PLLR);
 
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+      /* Prevent undershoot at highest frequency by applying intermediate AHB prescaler 2 */
+      if(pllfreq > 80000000U)
+      {
+        if(UTILS_ClkInitStruct->AHBCLKDivider == LL_RCC_SYSCLK_DIV_1)
+        {
+          UTILS_ClkInitStruct->AHBCLKDivider = LL_RCC_SYSCLK_DIV_2;
+          hpre = LL_RCC_SYSCLK_DIV_2;
+        }
+      }
+#endif
       /* Enable PLL and switch system clock to PLL */
       status = UTILS_EnablePLLAndSwitchSystem(pllfreq, UTILS_ClkInitStruct);
+
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+      /* Apply definitive AHB prescaler value if necessary */
+      if((status == SUCCESS) && (hpre != LL_RCC_SYSCLK_DIV_1))
+      {
+        /* Set FLASH latency to highest latency */
+        status = LL_SetFlashLatency(pllfreq);
+        if(status == SUCCESS)
+        {
+          UTILS_ClkInitStruct->AHBCLKDivider = LL_RCC_SYSCLK_DIV_1;
+          LL_RCC_SetAHBPrescaler(UTILS_ClkInitStruct->AHBCLKDivider);
+          LL_SetSystemCoreClock(pllfreq);
+        }
+      }
+#endif
     }
   }
   else
@@ -370,7 +568,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
   *         - PLL output frequency = (((HSI frequency / PLLM) * PLLN) / PLLR)
   *         - PLLM: ensure that the VCO input frequency ranges from 4 to 16 MHz (PLLVCO_input = HSI frequency / PLLM)
   *         - PLLN: ensure that the VCO output frequency is between 64 and 344 MHz (PLLVCO_output = PLLVCO_input * PLLN)
-  *         - PLLR: ensure that max frequency at 80000000 Hz is reach (PLLVCO_output / PLLR)
+  *         - PLLR: ensure that max frequency at 120000000 Hz is reach (PLLVCO_output / PLLR)
   * @param  UTILS_PLLInitStruct pointer to a @ref LL_UTILS_PLLInitTypeDef structure that contains
   *                             the configuration information for the PLL.
   * @param  UTILS_ClkInitStruct pointer to a @ref LL_UTILS_ClkInitTypeDef structure that contains
@@ -382,8 +580,12 @@ ErrorStatus LL_PLL_ConfigSystemClock_MSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
 ErrorStatus LL_PLL_ConfigSystemClock_HSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct,
                                          LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct)
 {
-  ErrorStatus status = SUCCESS;
-  uint32_t pllfreq = 0U;
+  ErrorStatus status;
+  uint32_t pllfreq;
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+  uint32_t hpre = LL_RCC_SYSCLK_DIV_1;  /* Set default value */
+#endif
 
   /* Check if one of the PLL is enabled */
   if(UTILS_PLL_IsBusy() == SUCCESS)
@@ -405,8 +607,36 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
     LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, UTILS_PLLInitStruct->PLLM, UTILS_PLLInitStruct->PLLN,
                                 UTILS_PLLInitStruct->PLLR);
 
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+    /* Prevent undershoot at highest frequency by applying intermediate AHB prescaler 2 */
+    if(pllfreq > 80000000U)
+    {
+      if(UTILS_ClkInitStruct->AHBCLKDivider == LL_RCC_SYSCLK_DIV_1)
+      {
+        UTILS_ClkInitStruct->AHBCLKDivider = LL_RCC_SYSCLK_DIV_2;
+        hpre = LL_RCC_SYSCLK_DIV_2;
+      }
+    }
+#endif
     /* Enable PLL and switch system clock to PLL */
     status = UTILS_EnablePLLAndSwitchSystem(pllfreq, UTILS_ClkInitStruct);
+
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+    /* Apply definitive AHB prescaler value if necessary */
+    if((status == SUCCESS) && (hpre != LL_RCC_SYSCLK_DIV_1))
+    {
+      /* Set FLASH latency to highest latency */
+      status = LL_SetFlashLatency(pllfreq);
+      if(status == SUCCESS)
+      {
+        UTILS_ClkInitStruct->AHBCLKDivider = LL_RCC_SYSCLK_DIV_1;
+        LL_RCC_SetAHBPrescaler(UTILS_ClkInitStruct->AHBCLKDivider);
+        LL_SetSystemCoreClock(pllfreq);
+      }
+    }
+#endif
   }
   else
   {
@@ -424,7 +654,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
   *         - PLL output frequency = (((HSE frequency / PLLM) * PLLN) / PLLR)
   *         - PLLM: ensure that the VCO input frequency ranges from 4 to 16 MHz (PLLVCO_input = HSE frequency / PLLM)
   *         - PLLN: ensure that the VCO output frequency is between 64 and 344 MHz (PLLVCO_output = PLLVCO_input * PLLN)
-  *         - PLLR: ensure that max frequency at 80000000 Hz is reached (PLLVCO_output / PLLR)
+  *         - PLLR: ensure that max frequency at 120000000 Hz is reached (PLLVCO_output / PLLR)
   * @param  HSEFrequency Value between Min_Data = 4000000 and Max_Data = 48000000
   * @param  HSEBypass This parameter can be one of the following values:
   *         @arg @ref LL_UTILS_HSEBYPASS_ON
@@ -440,8 +670,12 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSI(LL_UTILS_PLLInitTypeDef *UTILS_PLLInitS
 ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypass,
                                          LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct, LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct)
 {
-  ErrorStatus status = SUCCESS;
-  uint32_t pllfreq = 0U;
+  ErrorStatus status;
+  uint32_t pllfreq;
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+  uint32_t hpre = 0U;  /* Set default value */
+#endif
 
   /* Check the parameters */
   assert_param(IS_LL_UTILS_HSE_FREQUENCY(HSEFrequency));
@@ -478,8 +712,36 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypa
     LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, UTILS_PLLInitStruct->PLLM, UTILS_PLLInitStruct->PLLN,
                                 UTILS_PLLInitStruct->PLLR);
 
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+    /* Prevent undershoot at highest frequency by applying intermediate AHB prescaler 2 */
+    if(pllfreq > 80000000U)
+    {
+      if(UTILS_ClkInitStruct->AHBCLKDivider == LL_RCC_SYSCLK_DIV_1)
+      {
+        UTILS_ClkInitStruct->AHBCLKDivider = LL_RCC_SYSCLK_DIV_2;
+        hpre = LL_RCC_SYSCLK_DIV_2;
+      }
+    }
+#endif
     /* Enable PLL and switch system clock to PLL */
     status = UTILS_EnablePLLAndSwitchSystem(pllfreq, UTILS_ClkInitStruct);
+
+#if defined(STM32L4P5xx) || defined(STM32L4Q5xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
+    /* Apply definitive AHB prescaler value if necessary */
+    if((status == SUCCESS) && (hpre != LL_RCC_SYSCLK_DIV_1))
+    {
+      /* Set FLASH latency to highest latency */
+      status = LL_SetFlashLatency(pllfreq);
+      if(status == SUCCESS)
+      {
+        UTILS_ClkInitStruct->AHBCLKDivider = LL_RCC_SYSCLK_DIV_1;
+        LL_RCC_SetAHBPrescaler(UTILS_ClkInitStruct->AHBCLKDivider);
+        LL_SetSystemCoreClock(pllfreq);
+      }
+    }
+#endif
   }
   else
   {
@@ -502,89 +764,6 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypa
   * @{
   */
 /**
-  * @brief  Update number of Flash wait states in line with new frequency and current
-            voltage range.
-  * @param  HCLK_Frequency  HCLK frequency
-  * @retval An ErrorStatus enumeration value:
-  *          - SUCCESS: Latency has been modified
-  *          - ERROR: Latency cannot be modified
-  */
-static ErrorStatus UTILS_SetFlashLatency(uint32_t HCLK_Frequency)
-{
-  ErrorStatus status = SUCCESS;
-
-  uint32_t latency = LL_FLASH_LATENCY_0;  /* default value 0WS */
-
-  /* Frequency cannot be equal to 0 */
-  if(HCLK_Frequency == 0U)
-  {
-    status = ERROR;
-  }
-  else
-  {
-    if(LL_PWR_GetRegulVoltageScaling() == LL_PWR_REGU_VOLTAGE_SCALE1)
-    {
-      if(HCLK_Frequency > UTILS_SCALE1_LATENCY4_FREQ)
-      {
-        /* 64 < HCLK <= 80 => 4WS (5 CPU cycles) */
-        latency = LL_FLASH_LATENCY_4;
-      }
-      else if(HCLK_Frequency > UTILS_SCALE1_LATENCY3_FREQ)
-      {
-        /* 48 < HCLK <= 64 => 3WS (4 CPU cycles) */
-        latency = LL_FLASH_LATENCY_3;
-      }
-      else if(HCLK_Frequency > UTILS_SCALE1_LATENCY2_FREQ)
-      {
-        /* 32 < HCLK <= 48 => 2WS (3 CPU cycles) */
-        latency = LL_FLASH_LATENCY_2;
-      }
-      else
-      {
-        if(HCLK_Frequency > UTILS_SCALE1_LATENCY1_FREQ)
-        {
-          /* 16 < HCLK <= 32 => 1WS (2 CPU cycles) */
-          latency = LL_FLASH_LATENCY_1;
-        }
-        /* else HCLK_Frequency < 16MHz default LL_FLASH_LATENCY_0 0WS */
-      }
-    }
-    else /* SCALE2 */
-    {
-      if(HCLK_Frequency > UTILS_SCALE2_LATENCY3_FREQ)
-      {
-        /* 18 < HCLK <= 26 => 3WS (4 CPU cycles) */
-        latency = LL_FLASH_LATENCY_3;
-      }
-      else if(HCLK_Frequency > UTILS_SCALE2_LATENCY2_FREQ)
-      {
-        /* 12 < HCLK <= 18 => 2WS (3 CPU cycles) */
-        latency = LL_FLASH_LATENCY_2;
-      }
-      else
-      {
-        if(HCLK_Frequency > UTILS_SCALE2_LATENCY1_FREQ)
-        {
-          /* 6 < HCLK <= 12 => 1WS (2 CPU cycles) */
-          latency = LL_FLASH_LATENCY_1;
-        }
-        /* else HCLK_Frequency < 6MHz default LL_FLASH_LATENCY_0 0WS */
-      }
-    }
-
-    LL_FLASH_SetLatency(latency);
-
-    /* Check that the new number of wait states is taken into account to access the Flash
-       memory by reading the FLASH_ACR register */
-    if(LL_FLASH_GetLatency() != latency)
-    {
-      status = ERROR;
-    }
-  }
-  return status;
-}
-
-/**
   * @brief  Function to check that PLL can be modified
   * @param  PLL_InputFrequency  PLL input frequency (in Hz)
   * @param  UTILS_PLLInitStruct pointer to a @ref LL_UTILS_PLLInitTypeDef structure that contains
@@ -593,7 +772,7 @@ static ErrorStatus UTILS_SetFlashLatency(uint32_t HCLK_Frequency)
   */
 static uint32_t UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency, LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct)
 {
-  uint32_t pllfreq = 0U;
+  uint32_t pllfreq;
 
   /* Check the parameters */
   assert_param(IS_LL_UTILS_PLLM_VALUE(UTILS_PLLInitStruct->PLLM));
@@ -602,15 +781,15 @@ static uint32_t UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency, LL_UTIL
 
   /* Check different PLL parameters according to RM                          */
   /*  - PLLM: ensure that the VCO input frequency ranges from 4 to 16 MHz.   */
-  pllfreq = PLL_InputFrequency / (((UTILS_PLLInitStruct->PLLM >> RCC_PLLCFGR_PLLM_Pos) + 1));
+  pllfreq = PLL_InputFrequency / (((UTILS_PLLInitStruct->PLLM >> RCC_PLLCFGR_PLLM_Pos) + 1U));
   assert_param(IS_LL_UTILS_PLLVCO_INPUT(pllfreq));
 
   /*  - PLLN: ensure that the VCO output frequency is between 64 and 344 MHz.*/
   pllfreq = pllfreq * (UTILS_PLLInitStruct->PLLN & (RCC_PLLCFGR_PLLN >> RCC_PLLCFGR_PLLN_Pos));
   assert_param(IS_LL_UTILS_PLLVCO_OUTPUT(pllfreq));
 
-  /*  - PLLR: ensure that max frequency at 80000000 Hz is reached                   */
-  pllfreq = pllfreq / (((UTILS_PLLInitStruct->PLLR >> RCC_PLLCFGR_PLLR_Pos) + 1) * 2);
+  /*  - PLLR: ensure that max frequency at 120000000 Hz is reached                   */
+  pllfreq = pllfreq / (((UTILS_PLLInitStruct->PLLR >> RCC_PLLCFGR_PLLR_Pos) + 1U) * 2U);
   assert_param(IS_LL_UTILS_PLL_FREQUENCY(pllfreq));
 
   return pllfreq;
@@ -633,14 +812,16 @@ static ErrorStatus UTILS_PLL_IsBusy(void)
     status = ERROR;
   }
 
+#if defined(RCC_PLLSAI1_SUPPORT)
   /* Check if PLLSAI1 is busy*/
   if(LL_RCC_PLLSAI1_IsReady() != 0U)
   {
     /* PLLSAI1 configuration cannot be modified */
     status = ERROR;
   }
-
+#endif /*RCC_PLLSAI1_SUPPORT*/
 #if defined(RCC_PLLSAI2_SUPPORT)
+
   /* Check if PLLSAI2 is busy*/
   if(LL_RCC_PLLSAI2_IsReady() != 0U)
   {
@@ -664,7 +845,7 @@ static ErrorStatus UTILS_PLL_IsBusy(void)
 static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct)
 {
   ErrorStatus status = SUCCESS;
-  uint32_t hclk_frequency = 0U;
+  uint32_t hclk_frequency;
 
   assert_param(IS_LL_UTILS_SYSCLK_DIV(UTILS_ClkInitStruct->AHBCLKDivider));
   assert_param(IS_LL_UTILS_APB1_DIV(UTILS_ClkInitStruct->APB1CLKDivider));
@@ -677,7 +858,7 @@ static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_
   if(SystemCoreClock < hclk_frequency)
   {
     /* Set FLASH latency to highest latency */
-    status = UTILS_SetFlashLatency(hclk_frequency);
+    status = LL_SetFlashLatency(hclk_frequency);
   }
 
   /* Update system clock configuration */
@@ -708,7 +889,7 @@ static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_
   if(SystemCoreClock > hclk_frequency)
   {
     /* Set FLASH latency to lowest latency */
-    status = UTILS_SetFlashLatency(hclk_frequency);
+    status = LL_SetFlashLatency(hclk_frequency);
   }
 
   /* Update SystemCoreClock variable */

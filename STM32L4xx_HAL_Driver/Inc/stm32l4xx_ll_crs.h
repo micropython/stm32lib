@@ -2,42 +2,24 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_crs.h
   * @author  MCD Application Team
-  * @version V1.7.2
-  * @date    16-June-2017
   * @brief   Header file of CRS LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_LL_CRS_H
-#define __STM32L4xx_LL_CRS_H
+#ifndef STM32L4xx_LL_CRS_H
+#define STM32L4xx_LL_CRS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -154,11 +136,16 @@ extern "C" {
 
 /**
   * @brief Reset value of the HSI48 Calibration field
-  * @note The default value is 32, which corresponds to the middle of the trimming interval.
+  * @note The default value is 64 for STM32L412xx/L422xx, 32 otherwise, which corresponds
+  *       to the middle of the trimming interval.
   *       The trimming step is around 67 kHz between two consecutive TRIM steps.
   *       A higher TRIM value corresponds to a higher output frequency
   */
-#define LL_CRS_HSI48CALIBRATION_DEFAULT    ((uint32_t)0x20U)
+#if defined (STM32L412xx) || defined (STM32L422xx)
+#define LL_CRS_HSI48CALIBRATION_DEFAULT    ((uint32_t)64U)
+#else
+#define LL_CRS_HSI48CALIBRATION_DEFAULT    ((uint32_t)32U)
+#endif
 /**
   * @}
   */
@@ -295,7 +282,7 @@ __STATIC_INLINE uint32_t LL_CRS_IsEnabledAutoTrimming(void)
   * @brief  Set HSI48 oscillator smooth trimming
   * @note   When the AUTOTRIMEN bit is set, this field is controlled by hardware and is read-only
   * @rmtoll CR           TRIM          LL_CRS_SetHSI48SmoothTrimming
-  * @param  Value a number between Min_Data = 0 and Max_Data = 63
+  * @param  Value a number between Min_Data = 0 and Max_Data = 127 for STM32L412xx/L422xx or 63 otherwise
   * @note   Default value can be set thanks to @ref LL_CRS_HSI48CALIBRATION_DEFAULT
   * @retval None
   */
@@ -307,7 +294,7 @@ __STATIC_INLINE void LL_CRS_SetHSI48SmoothTrimming(uint32_t Value)
 /**
   * @brief  Get HSI48 oscillator smooth trimming
   * @rmtoll CR           TRIM          LL_CRS_GetHSI48SmoothTrimming
-  * @retval a number between Min_Data = 0 and Max_Data = 63
+  * @retval a number between Min_Data = 0 and Max_Data = 127 for STM32L412xx/L422xx or 63 otherwise
   */
 __STATIC_INLINE uint32_t LL_CRS_GetHSI48SmoothTrimming(void)
 {
@@ -456,7 +443,7 @@ __STATIC_INLINE uint32_t LL_CRS_GetSyncPolarity(void)
   *         CFGR         SYNCDIV       LL_CRS_ConfigSynchronization\n
   *         CFGR         SYNCSRC       LL_CRS_ConfigSynchronization\n
   *         CFGR         SYNCPOL       LL_CRS_ConfigSynchronization
-  * @param  HSI48CalibrationValue a number between Min_Data = 0 and Max_Data = 63
+  * @param  HSI48CalibrationValue a number between Min_Data = 0 and Max_Data = 127 for STM32L412xx/L422xx or 63 otherwise
   * @param  ErrorLimitValue a number between Min_Data = 0 and Max_Data = 0xFFFF
   * @param  ReloadValue a number between Min_Data = 0 and Max_Data = 255
   * @param  Settings This parameter can be a combination of the following values:
@@ -796,6 +783,6 @@ ErrorStatus LL_CRS_DeInit(void);
 }
 #endif
 
-#endif /* __STM32L4xx_LL_CRS_H */
+#endif /* STM32L4xx_LL_CRS_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
