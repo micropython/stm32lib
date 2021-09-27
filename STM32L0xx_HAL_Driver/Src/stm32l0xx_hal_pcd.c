@@ -194,7 +194,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   }
 
   /* Init Device */
-  if (USB_DevInit(hpcd->Instance, hpcd->Init) != HAL_OK)
+  if (USB_DevInit(hpcd->Instance, &hpcd->Init) != HAL_OK)
   {
     hpcd->State = HAL_PCD_STATE_ERROR;
     return HAL_ERROR;
