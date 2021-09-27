@@ -158,13 +158,13 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   __HAL_HCD_DISABLE(hhcd);
 
   /* Init the Core (common init.) */
-  (void)USB_CoreInit(hhcd->Instance, hhcd->Init);
+  (void)USB_CoreInit(hhcd->Instance, &hhcd->Init);
 
   /* Force Host Mode*/
   (void)USB_SetCurrentMode(hhcd->Instance, USB_HOST_MODE);
 
   /* Init Host */
-  (void)USB_HostInit(hhcd->Instance, hhcd->Init);
+  (void)USB_HostInit(hhcd->Instance, &hhcd->Init);
 
   hhcd->State = HAL_HCD_STATE_READY;
 
