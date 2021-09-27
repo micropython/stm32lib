@@ -158,7 +158,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
  __HAL_PCD_DISABLE(hpcd);
 
  /*Init the Core (common init.) */
- USB_CoreInit(hpcd->Instance, hpcd->Init);
+ USB_CoreInit(hpcd->Instance, &hpcd->Init);
 
  /* Force Device Mode*/
  USB_SetCurrentMode(hpcd->Instance , USB_OTG_DEVICE_MODE);
@@ -192,7 +192,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
  }
 
  /* Init Device */
- USB_DevInit(hpcd->Instance, hpcd->Init);
+ USB_DevInit(hpcd->Instance, &hpcd->Init);
 
  hpcd->State= HAL_PCD_STATE_READY;
 
