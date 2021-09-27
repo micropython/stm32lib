@@ -192,7 +192,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   __HAL_PCD_DISABLE(hpcd);
 
   /*Init the Core (common init.) */
-  if (USB_CoreInit(hpcd->Instance, hpcd->Init) != HAL_OK)
+  if (USB_CoreInit(hpcd->Instance, &hpcd->Init) != HAL_OK)
   {
     hpcd->State = HAL_PCD_STATE_ERROR;
     return HAL_ERROR;
@@ -227,7 +227,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   }
 
   /* Init Device */
-  if (USB_DevInit(hpcd->Instance, hpcd->Init) != HAL_OK)
+  if (USB_DevInit(hpcd->Instance, &hpcd->Init) != HAL_OK)
   {
     hpcd->State = HAL_PCD_STATE_ERROR;
     return HAL_ERROR;

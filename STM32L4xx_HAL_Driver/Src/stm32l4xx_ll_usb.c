@@ -79,7 +79,7 @@ static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx);
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, const USB_OTG_CfgTypeDef *cfg)
 {
   HAL_StatusTypeDef ret;
 
@@ -90,7 +90,7 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   /* Reset after a PHY select */
   ret = USB_CoreReset(USBx);
 
-  if (cfg.battery_charging_enable == 0U)
+  if (cfg->battery_charging_enable == 0U)
   {
     /* Activate the USB Transceiver */
     USBx->GCCFG |= USB_OTG_GCCFG_PWRDWN;
@@ -246,7 +246,7 @@ HAL_StatusTypeDef USB_SetCurrentMode(USB_OTG_GlobalTypeDef *USBx, USB_ModeTypeDe
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_DevInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_DevInit(USB_OTG_GlobalTypeDef *USBx, const USB_OTG_CfgTypeDef *cfg)
 {
   HAL_StatusTypeDef ret = HAL_OK;
   uint32_t USBx_BASE = (uint32_t)USBx;
@@ -258,7 +258,7 @@ HAL_StatusTypeDef USB_DevInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cf
   }
 
   /* VBUS Sensing setup */
-  if (cfg.vbus_sensing_enable == 0U)
+  if (cfg->vbus_sensing_enable == 0U)
   {
     USBx_DEVICE->DCTL |= USB_OTG_DCTL_SDIS;
 
@@ -300,7 +300,7 @@ HAL_StatusTypeDef USB_DevInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cf
   USBx_DEVICE->DOEPMSK = 0U;
   USBx_DEVICE->DAINTMSK = 0U;
 
-  for (i = 0U; i < cfg.dev_endpoints; i++)
+  for (i = 0U; i < cfg->dev_endpoints; i++)
   {
     if ((USBx_INEP(i)->DIEPCTL & USB_OTG_DIEPCTL_EPENA) == USB_OTG_DIEPCTL_EPENA)
     {
@@ -322,7 +322,7 @@ HAL_StatusTypeDef USB_DevInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cf
     USBx_INEP(i)->DIEPINT  = 0xFB7FU;
   }
 
-  for (i = 0U; i < cfg.dev_endpoints; i++)
+  for (i = 0U; i < cfg->dev_endpoints; i++)
   {
     if ((USBx_OUTEP(i)->DOEPCTL & USB_OTG_DOEPCTL_EPENA) == USB_OTG_DOEPCTL_EPENA)
     {
@@ -361,12 +361,12 @@ HAL_StatusTypeDef USB_DevInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cf
                    USB_OTG_GINTMSK_OEPINT   | USB_OTG_GINTMSK_IISOIXFRM |
                    USB_OTG_GINTMSK_PXFRM_IISOOXFRM | USB_OTG_GINTMSK_WUIM;
 
-  if (cfg.Sof_enable != 0U)
+  if (cfg->Sof_enable != 0U)
   {
     USBx->GINTMSK |= USB_OTG_GINTMSK_SOFM;
   }
 
-  if (cfg.vbus_sensing_enable == 1U)
+  if (cfg->vbus_sensing_enable == 1U)
   {
     USBx->GINTMSK |= (USB_OTG_GINTMSK_SRQIM | USB_OTG_GINTMSK_OTGINT);
   }
@@ -1197,7 +1197,7 @@ static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx)
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_HostInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_HostInit(USB_OTG_GlobalTypeDef *USBx, const USB_OTG_CfgTypeDef *cfg)
 {
   uint32_t USBx_BASE = (uint32_t)USBx;
   uint32_t i;
@@ -1219,7 +1219,7 @@ HAL_StatusTypeDef USB_HostInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   (void)USB_FlushRxFifo(USBx);
 
   /* Clear all pending HC Interrupts */
-  for (i = 0U; i < cfg.Host_channels; i++)
+  for (i = 0U; i < cfg->Host_channels; i++)
   {
     USBx_HC(i)->HCINT = 0xFFFFFFFFU;
     USBx_HC(i)->HCINTMSK = 0U;
@@ -1814,7 +1814,7 @@ HAL_StatusTypeDef USB_DeActivateRemoteWakeup(USB_OTG_GlobalTypeDef *USBx)
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_CoreInit(USB_TypeDef *USBx, USB_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_CoreInit(USB_TypeDef *USBx, const USB_CfgTypeDef *cfg)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(USBx);
@@ -1904,7 +1904,7 @@ HAL_StatusTypeDef USB_SetCurrentMode(USB_TypeDef *USBx, USB_ModeTypeDef mode)
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_DevInit(USB_TypeDef *USBx, USB_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_DevInit(USB_TypeDef *USBx, const USB_CfgTypeDef *cfg)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(cfg);
