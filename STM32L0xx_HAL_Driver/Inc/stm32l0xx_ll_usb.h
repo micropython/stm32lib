@@ -169,8 +169,8 @@ typedef struct
   */
 
 
-HAL_StatusTypeDef USB_CoreInit(USB_TypeDef *USBx, USB_CfgTypeDef cfg);
-HAL_StatusTypeDef USB_DevInit(USB_TypeDef *USBx, USB_CfgTypeDef cfg);
+HAL_StatusTypeDef USB_CoreInit(USB_TypeDef *USBx, const USB_CfgTypeDef *cfg);
+HAL_StatusTypeDef USB_DevInit(USB_TypeDef *USBx, const USB_CfgTypeDef *cfg);
 HAL_StatusTypeDef USB_EnableGlobalInt(USB_TypeDef *USBx);
 HAL_StatusTypeDef USB_DisableGlobalInt(USB_TypeDef *USBx);
 HAL_StatusTypeDef USB_SetCurrentMode(USB_TypeDef *USBx, USB_ModeTypeDef mode);
