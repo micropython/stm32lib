@@ -196,7 +196,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   }
 
   /* Init Device */
-  (void)USB_DevInit(hpcd->Instance, hpcd->Init);
+  (void)USB_DevInit(hpcd->Instance, &hpcd->Init);
 
   hpcd->USB_Address = 0U;
   hpcd->State = HAL_PCD_STATE_READY;
