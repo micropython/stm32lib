@@ -108,9 +108,9 @@ static HAL_StatusTypeDef USB_HS_PHYCInit(USB_OTG_GlobalTypeDef *USBx);
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, const USB_OTG_CfgTypeDef *cfg)
 {
-  if (cfg.phy_itface == USB_OTG_ULPI_PHY)
+  if (cfg->phy_itface == USB_OTG_ULPI_PHY)
   {
 
     USBx->GCCFG &= ~(USB_OTG_GCCFG_PWRDWN);
@@ -120,7 +120,7 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
 
     /* Select vbus source */
     USBx->GUSBCFG &= ~(USB_OTG_GUSBCFG_ULPIEVBUSD | USB_OTG_GUSBCFG_ULPIEVBUSI);
-    if(cfg.use_external_vbus == 1)
+    if(cfg->use_external_vbus == 1)
     {
       USBx->GUSBCFG |= USB_OTG_GUSBCFG_ULPIEVBUSD;
     }
@@ -146,7 +146,7 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
     /* Enables control of a High Speed USB PHY */
     USB_HS_PHYCInit(USBx);
 
-    if(cfg.use_external_vbus == 1)
+    if(cfg->use_external_vbus == 1)
     {
       USBx->GUSBCFG |= USB_OTG_GUSBCFG_ULPIEVBUSD;
     }
@@ -167,7 +167,7 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
     USBx->GCCFG = USB_OTG_GCCFG_PWRDWN;
   }
 
-  if(cfg.dma_enable == ENABLE)
+  if(cfg->dma_enable == ENABLE)
   {
     USBx->GAHBCFG |= USB_OTG_GAHBCFG_HBSTLEN_2;
     USBx->GAHBCFG |= USB_OTG_GAHBCFG_DMAEN;
@@ -236,14 +236,14 @@ HAL_StatusTypeDef USB_SetCurrentMode(USB_OTG_GlobalTypeDef *USBx , USB_OTG_ModeT
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, const USB_OTG_CfgTypeDef *cfg)
 {
   uint32_t i = 0;
 
   /*Activate VBUS Sensing B */
   USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
 
-  if (cfg.vbus_sensing_enable == 0)
+  if (cfg->vbus_sensing_enable == 0)
   {
     /* Deactivate VBUS Sensing B */
     USBx->GCCFG &= ~ USB_OTG_GCCFG_VBDEN;
@@ -259,9 +259,9 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   /* Device mode configuration */
   USBx_DEVICE->DCFG |= DCFG_FRAME_INTERVAL_80;
 
-  if(cfg.phy_itface  == USB_OTG_ULPI_PHY)
+  if(cfg->phy_itface  == USB_OTG_ULPI_PHY)
   {
-    if(cfg.speed == USB_OTG_SPEED_HIGH)
+    if(cfg->speed == USB_OTG_SPEED_HIGH)
     {
       /* Set High speed phy */
       USB_SetDevSpeed (USBx , USB_OTG_SPEED_HIGH);
@@ -273,9 +273,9 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
     }
   }
 
-  else if(cfg.phy_itface  == USB_OTG_HS_EMBEDDED_PHY)
+  else if(cfg->phy_itface  == USB_OTG_HS_EMBEDDED_PHY)
   {
-    if(cfg.speed == USB_OTG_SPEED_HIGH)
+    if(cfg->speed == USB_OTG_SPEED_HIGH)
     {
       /* Set High speed phy */
       USB_SetDevSpeed (USBx , USB_OTG_SPEED_HIGH);
@@ -303,7 +303,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   USBx_DEVICE->DAINT = 0xFFFFFFFF;
   USBx_DEVICE->DAINTMSK = 0;
 
-  for (i = 0; i < cfg.dev_endpoints; i++)
+  for (i = 0; i < cfg->dev_endpoints; i++)
   {
     if ((USBx_INEP(i)->DIEPCTL & USB_OTG_DIEPCTL_EPENA) == USB_OTG_DIEPCTL_EPENA)
     {
@@ -318,7 +318,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
     USBx_INEP(i)->DIEPINT  = 0xFF;
   }
 
-  for (i = 0; i < cfg.dev_endpoints; i++)
+  for (i = 0; i < cfg->dev_endpoints; i++)
   {
     if ((USBx_OUTEP(i)->DOEPCTL & USB_OTG_DOEPCTL_EPENA) == USB_OTG_DOEPCTL_EPENA)
     {
@@ -335,7 +335,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
 
   USBx_DEVICE->DIEPMSK &= ~(USB_OTG_DIEPMSK_TXFURM);
 
-  if (cfg.dma_enable == 1)
+  if (cfg->dma_enable == 1)
   {
     /*Set threshold parameters */
     USBx_DEVICE->DTHRCTL = (USB_OTG_DTHRCTL_TXTHRLEN_6 | USB_OTG_DTHRCTL_RXTHRLEN_6);
@@ -351,7 +351,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   USBx->GINTSTS = 0xBFFFFFFF;
 
   /* Enable the common interrupts */
-  if (cfg.dma_enable == DISABLE)
+  if (cfg->dma_enable == DISABLE)
   {
     USBx->GINTMSK |= USB_OTG_GINTMSK_RXFLVLM;
   }
@@ -362,12 +362,12 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
                     USB_OTG_GINTMSK_OEPINT   | USB_OTG_GINTMSK_IISOIXFRM|\
                     USB_OTG_GINTMSK_PXFRM_IISOOXFRM | USB_OTG_GINTMSK_WUIM);
 
-  if(cfg.Sof_enable)
+  if(cfg->Sof_enable)
   {
     USBx->GINTMSK |= USB_OTG_GINTMSK_SOFM;
   }
 
-  if (cfg.vbus_sensing_enable == ENABLE)
+  if (cfg->vbus_sensing_enable == ENABLE)
   {
     USBx->GINTMSK |= (USB_OTG_GINTMSK_SRQIM | USB_OTG_GINTMSK_OTGINT);
   }
@@ -1233,7 +1233,7 @@ static HAL_StatusTypeDef USB_HS_PHYCInit(USB_OTG_GlobalTypeDef *USBx)
   *         the configuration information for the specified USBx peripheral.
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef cfg)
+HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, const USB_OTG_CfgTypeDef *cfg)
 {
   uint32_t i;
 
@@ -1244,7 +1244,7 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
 
   /* Disable the FS/LS support mode only */
-  if((cfg.speed == USB_OTG_SPEED_FULL)&&
+  if((cfg->speed == USB_OTG_SPEED_FULL)&&
      (USBx != USB_OTG_FS))
   {
     USBx_HOST->HCFG |= USB_OTG_HCFG_FSLSS;
@@ -1259,7 +1259,7 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   USB_FlushRxFifo(USBx);
 
   /* Clear all pending HC Interrupts */
-  for (i = 0; i < cfg.Host_channels; i++)
+  for (i = 0; i < cfg->Host_channels; i++)
   {
     USBx_HC(i)->HCINT = 0xFFFFFFFF;
     USBx_HC(i)->HCINTMSK = 0;
@@ -1292,7 +1292,7 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   }
 
   /* Enable the common interrupts */
-  if (cfg.dma_enable == DISABLE)
+  if (cfg->dma_enable == DISABLE)
   {
     USBx->GINTMSK |= USB_OTG_GINTMSK_RXFLVLM;
   }
