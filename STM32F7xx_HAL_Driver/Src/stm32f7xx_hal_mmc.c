@@ -2293,7 +2293,7 @@ static uint32_t MMC_InitCard(MMC_HandleTypeDef *hmmc)
 
   /* Send CMD3 SET_REL_ADDR with argument 0 */
   /* MMC Card publishes its RCA. */
-  errorstate = SDMMC_CmdSetRelAdd(hmmc->Instance, &mmc_rca);
+  errorstate = SDMMC_CmdSetRelAddMmc(hmmc->Instance, mmc_rca);
   if(errorstate != HAL_MMC_ERROR_NONE)
   {
     return errorstate;
