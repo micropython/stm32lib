@@ -1035,6 +1035,31 @@ uint32_t SDMMC_CmdSetRelAdd(SDMMC_TypeDef *SDMMCx, uint16_t *pRCA)
 }
 
 /**
+  * @brief  Send the Set Relative Address command to MMC card (not SD card).
+  * @param  SDMMCx Pointer to SDMMC register base
+  * @param  RCA Card RCA
+  * @retval HAL status
+  */
+uint32_t SDMMC_CmdSetRelAddMmc(SDMMC_TypeDef *SDMMCx, uint16_t RCA)
+{
+  SDMMC_CmdInitTypeDef  sdmmc_cmdinit;
+  uint32_t errorstate;
+
+  /* Send CMD3 SD_CMD_SET_REL_ADDR */
+  sdmmc_cmdinit.Argument         = ((uint32_t)RCA << 16U);
+  sdmmc_cmdinit.CmdIndex         = SDMMC_CMD_SET_REL_ADDR;
+  sdmmc_cmdinit.Response         = SDMMC_RESPONSE_SHORT;
+  sdmmc_cmdinit.WaitForInterrupt = SDMMC_WAIT_NO;
+  sdmmc_cmdinit.CPSM             = SDMMC_CPSM_ENABLE;
+  (void)SDMMC_SendCommand(SDMMCx, &sdmmc_cmdinit);
+
+  /* Check for error conditions */
+  errorstate = SDMMC_GetCmdResp1(SDMMCx, SDMMC_CMD_SET_REL_ADDR, SDMMC_CMDTIMEOUT);
+
+  return errorstate;
+}
+
+/**
   * @brief  Send the Status command and check the response.
   * @param  SDMMCx: Pointer to SDMMC register base
   * @retval HAL status
