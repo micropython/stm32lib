@@ -1098,6 +1098,7 @@ uint32_t SDMMC_CmdSendSCR(SDIO_TypeDef *SDIOx);
 uint32_t SDMMC_CmdSendCID(SDIO_TypeDef *SDIOx);
 uint32_t SDMMC_CmdSendCSD(SDIO_TypeDef *SDIOx, uint32_t Argument);
 uint32_t SDMMC_CmdSetRelAdd(SDIO_TypeDef *SDIOx, uint16_t *pRCA);
+uint32_t SDMMC_CmdSetRelAddMmc(SDIO_TypeDef *SDIOx, uint16_t RCA);
 uint32_t SDMMC_CmdSendStatus(SDIO_TypeDef *SDIOx, uint32_t Argument);
 uint32_t SDMMC_CmdStatusRegister(SDIO_TypeDef *SDIOx);
 
