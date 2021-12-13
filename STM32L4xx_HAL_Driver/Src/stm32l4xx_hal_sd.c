@@ -2757,7 +2757,7 @@ HAL_StatusTypeDef HAL_SD_ConfigWideBusOperation(SD_HandleTypeDef *hsd, uint32_t 
 
       Init.Transceiver = hsd->Init.Transceiver;
 #else
-      if ((sdmmc_clk / (Init.ClockDiv + 2U)) > SD_NORMAL_SPEED_FREQ)
+      if ((sdmmc_clk / (hsd->Init.ClockDiv + 2U)) > SD_NORMAL_SPEED_FREQ)
       {
         Init.ClockDiv = ((sdmmc_clk / SD_NORMAL_SPEED_FREQ) - 2U);
       }
