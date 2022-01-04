@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -232,13 +231,16 @@ typedef enum
 #define PSSI_CR_OUTEN_OUTPUT        PSSI_CR_OUTEN    /*!< Output Mode     */
 
 #define PSSI_CR_DMA_ENABLE          PSSI_CR_DMAEN    /*!< DMA Mode Enable */
-#define PSSI_CR_DMA_DISABLE         (~PSSI_CR_DMAEN) /*!< DMA Mode Disble */
+#define PSSI_CR_DMA_DISABLE         (~PSSI_CR_DMAEN) /*!< DMA Mode Disable */
 
 #define PSSI_CR_16BITS              PSSI_CR_EDM      /*!< 16 Lines Mode   */
 #define PSSI_CR_8BITS               (~PSSI_CR_EDM)   /*!< 8 Lines Mode    */
 
 #define PSSI_FLAG_RTT1B             PSSI_SR_RTT1B    /*!< 1 Byte Fifo Flag*/
 #define PSSI_FLAG_RTT4B             PSSI_SR_RTT4B    /*!< 4 Bytes Fifo Flag*/
+
+
+
 /**
   * @}
   */
@@ -253,6 +255,9 @@ typedef enum
 /**
   * @}
   */
+
+
+
 /**
   * @}
   */
@@ -403,6 +408,7 @@ typedef enum
   * @}
   */
 
+
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup PSSI_Exported_Functions
   * @{
@@ -411,6 +417,7 @@ typedef enum
 /** @addtogroup PSSI_Exported_Functions_Group1
   * @{
   */
+
 /* Initialization and de-initialization functions *******************************/
 HAL_StatusTypeDef HAL_PSSI_Init(PSSI_HandleTypeDef *hpssi);
 HAL_StatusTypeDef HAL_PSSI_DeInit(PSSI_HandleTypeDef *hpssi);
@@ -420,6 +427,8 @@ void              HAL_PSSI_MspDeInit(PSSI_HandleTypeDef *hpssi);
 
 HAL_StatusTypeDef HAL_PSSI_RegisterCallback(PSSI_HandleTypeDef *hpssi, HAL_PSSI_CallbackIDTypeDef CallbackID, pPSSI_CallbackTypeDef pCallback);
 HAL_StatusTypeDef HAL_PSSI_UnRegisterCallback(PSSI_HandleTypeDef *hpssi, HAL_PSSI_CallbackIDTypeDef CallbackID);
+
+
 /**
   * @}
   */
@@ -427,6 +436,7 @@ HAL_StatusTypeDef HAL_PSSI_UnRegisterCallback(PSSI_HandleTypeDef *hpssi, HAL_PSS
 /** @addtogroup PSSI_Exported_Functions_Group2
   * @{
   */
+
 /* IO operation functions *******************************************************/
 HAL_StatusTypeDef HAL_PSSI_Transmit(PSSI_HandleTypeDef *hpssi, uint8_t *pData, uint32_t Size, uint32_t Timeout);
 HAL_StatusTypeDef HAL_PSSI_Receive(PSSI_HandleTypeDef *hpssi, uint8_t *pData, uint32_t Size, uint32_t Timeout);
@@ -434,6 +444,7 @@ HAL_StatusTypeDef HAL_PSSI_Transmit_DMA(PSSI_HandleTypeDef *hpssi, uint32_t *pDa
 HAL_StatusTypeDef HAL_PSSI_Receive_DMA(PSSI_HandleTypeDef *hpssi, uint32_t *pData, uint32_t Size);
 HAL_StatusTypeDef HAL_PSSI_Abort_DMA(PSSI_HandleTypeDef *hpssi);
 void HAL_PSSI_IRQHandler(PSSI_HandleTypeDef *hpssi);
+
 /**
   * @}
   */
@@ -441,10 +452,13 @@ void HAL_PSSI_IRQHandler(PSSI_HandleTypeDef *hpssi);
 /** @addtogroup PSSI_Exported_Functions_Group3
   * @{
   */
+
 void HAL_PSSI_TxCpltCallback(PSSI_HandleTypeDef *hpssi);
 void HAL_PSSI_RxCpltCallback(PSSI_HandleTypeDef *hpssi);
 void HAL_PSSI_ErrorCallback(PSSI_HandleTypeDef *hpssi);
 void HAL_PSSI_AbortCpltCallback(PSSI_HandleTypeDef *hpssi);
+
+
 /**
   * @}
   */
@@ -452,9 +466,11 @@ void HAL_PSSI_AbortCpltCallback(PSSI_HandleTypeDef *hpssi);
 /** @addtogroup PSSI_Exported_Functions_Group4
   * @{
   */
+
 /* Peripheral State functions ***************************************************/
 HAL_PSSI_StateTypeDef HAL_PSSI_GetState(PSSI_HandleTypeDef *hpssi);
-uint32_t              HAL_PSSI_GetError(PSSI_HandleTypeDef *hpssi);
+uint32_t               HAL_PSSI_GetError(PSSI_HandleTypeDef *hpssi);
+
 /**
   * @}
   */
@@ -484,6 +500,3 @@ uint32_t              HAL_PSSI_GetError(PSSI_HandleTypeDef *hpssi);
 #endif
 
 #endif /* STM32H7xx_HAL_PSSI_H */
-
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

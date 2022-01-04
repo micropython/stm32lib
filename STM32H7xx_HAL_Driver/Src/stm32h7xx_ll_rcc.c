@@ -6,14 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
+  * This software is licensed under terms that can be found in the LICENSE file in
+  * the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
   */
 #if defined(USE_FULL_LL_DRIVER)
@@ -56,16 +54,20 @@ const uint8_t LL_RCC_PrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7,
                                             || ((__VALUE__) == LL_RCC_LPTIM2_CLKSOURCE)  \
                                             || ((__VALUE__) == LL_RCC_LPTIM345_CLKSOURCE))
 
-#if defined(LL_RCC_SAI4A_CLKSOURCE)
+#if defined(SAI3)
 #define IS_LL_RCC_SAI_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_SAI1_CLKSOURCE) \
                                             || ((__VALUE__) == LL_RCC_SAI23_CLKSOURCE) \
+                                            || ((__VALUE__) == LL_RCC_SAI4A_CLKSOURCE) \
+                                            || ((__VALUE__) == LL_RCC_SAI4B_CLKSOURCE))
+#elif defined(SAI4)
+#define IS_LL_RCC_SAI_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_SAI1_CLKSOURCE) \
                                             || ((__VALUE__) == LL_RCC_SAI4A_CLKSOURCE) \
                                             || ((__VALUE__) == LL_RCC_SAI4B_CLKSOURCE))
 #else
 #define IS_LL_RCC_SAI_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_SAI1_CLKSOURCE) \
                                             || ((__VALUE__) == LL_RCC_SAI2A_CLKSOURCE) \
                                             || ((__VALUE__) == LL_RCC_SAI2B_CLKSOURCE))
-#endif /* LL_RCC_SAI4A_CLKSOURCE */
+#endif /* SAI3 */
 
 #define IS_LL_RCC_SPI_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_SPI123_CLKSOURCE) \
                                             || ((__VALUE__) == LL_RCC_SPI45_CLKSOURCE) \
@@ -79,12 +81,12 @@ const uint8_t LL_RCC_PrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7,
 /** @defgroup RCC_LL_Private_Functions RCC Private functions
   * @{
   */
-uint32_t RCC_GetSystemClockFreq(void);
-uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency);
-uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency);
-uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency);
-uint32_t RCC_GetPCLK3ClockFreq(uint32_t HCLK_Frequency);
-uint32_t RCC_GetPCLK4ClockFreq(uint32_t HCLK_Frequency);
+static uint32_t RCC_GetSystemClockFreq(void);
+static uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency);
+static uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency);
+static uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency);
+static uint32_t RCC_GetPCLK3ClockFreq(uint32_t HCLK_Frequency);
+static uint32_t RCC_GetPCLK4ClockFreq(uint32_t HCLK_Frequency);
 
 /**
   * @}
@@ -115,6 +117,13 @@ uint32_t RCC_GetPCLK4ClockFreq(uint32_t HCLK_Frequency);
   */
 void LL_RCC_DeInit(void)
 {
+   /* Increasing the CPU frequency */
+  if(FLASH_LATENCY_DEFAULT  > (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
+  {
+    /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
+    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
+  }
+
   /* Set HSION bit */
   SET_BIT(RCC->CR, RCC_CR_HSION);
 
@@ -199,6 +208,14 @@ void LL_RCC_DeInit(void)
 
   /* Clear reset source flags */
   SET_BIT(RCC->RSR, RCC_RSR_RMVF);
+
+   /* Decreasing the number of wait states because of lower CPU frequency */
+  if(FLASH_LATENCY_DEFAULT  < (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
+  {
+    /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
+    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
+  }
+
 }
 
 /**
@@ -810,14 +827,14 @@ uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
 #if defined(SAI3)
     case LL_RCC_SAI23_CLKSOURCE_PLL1Q:
 #endif /* SAI3 */
+#if defined(SAI4)
+    case LL_RCC_SAI4A_CLKSOURCE_PLL1Q:
+    case LL_RCC_SAI4B_CLKSOURCE_PLL1Q:
+#endif /* SAI4 */
 #if defined (RCC_CDCCIP1R_SAI2ASEL) || defined(RCC_CDCCIP1R_SAI2BSEL)
     case LL_RCC_SAI2A_CLKSOURCE_PLL1Q:
     case LL_RCC_SAI2B_CLKSOURCE_PLL1Q:
-#endif /* (RCC_CDCCIP1R_SAI2ASEL) || (RCC_CDCCIP1R_SAI2BSEL) */
-#if defined(SAI4_Block_A) || defined(SAI4_Block_B)
-    case LL_RCC_SAI4A_CLKSOURCE_PLL1Q:
-    case LL_RCC_SAI4B_CLKSOURCE_PLL1Q:
-#endif /* (SAI4_Block_A) || (SAI4_Block_B) */
+#endif /* RCC_CDCCIP1R_SAI2ASEL || RCC_CDCCIP1R_SAI2BSEL */
       if (LL_RCC_PLL1_IsReady() != 0U)
       {
         LL_RCC_GetPLL1ClockFreq(&PLL_Clocks);
@@ -829,14 +846,14 @@ uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
 #if defined(SAI3)
     case LL_RCC_SAI23_CLKSOURCE_PLL2P:
 #endif /* SAI3 */
+#if defined(SAI4)
+    case LL_RCC_SAI4A_CLKSOURCE_PLL2P:
+    case LL_RCC_SAI4B_CLKSOURCE_PLL2P:
+#endif /* SAI4 */
 #if defined (RCC_CDCCIP1R_SAI2ASEL) || defined(RCC_CDCCIP1R_SAI2BSEL)
     case LL_RCC_SAI2A_CLKSOURCE_PLL2P:
     case LL_RCC_SAI2B_CLKSOURCE_PLL2P:
-#endif /* (RCC_CDCCIP1R_SAI2ASEL) || (RCC_CDCCIP1R_SAI2BSEL) */
-#if defined(SAI4_Block_A) || defined(SAI4_Block_B)
-    case LL_RCC_SAI4A_CLKSOURCE_PLL2P:
-    case LL_RCC_SAI4B_CLKSOURCE_PLL2P:
-#endif /* (SAI2_Block_A_BASE) || (SAI2_Block_B_BASE) */
+#endif /* RCC_CDCCIP1R_SAI2ASEL || RCC_CDCCIP1R_SAI2BSEL */
       if (LL_RCC_PLL2_IsReady() != 0U)
       {
         LL_RCC_GetPLL2ClockFreq(&PLL_Clocks);
@@ -848,14 +865,14 @@ uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
 #if defined(SAI3)
     case LL_RCC_SAI23_CLKSOURCE_PLL3P:
 #endif /* SAI3 */
+#if defined(SAI4)
+    case LL_RCC_SAI4A_CLKSOURCE_PLL3P:
+    case LL_RCC_SAI4B_CLKSOURCE_PLL3P:
+#endif /* SAI4 */
 #if defined (RCC_CDCCIP1R_SAI2ASEL) || defined(RCC_CDCCIP1R_SAI2BSEL)
     case LL_RCC_SAI2A_CLKSOURCE_PLL3P:
     case LL_RCC_SAI2B_CLKSOURCE_PLL3P:
-#endif /* (RCC_CDCCIP1R_SAI2ASEL) || (RCC_CDCCIP1R_SAI2BSEL) */
-#if defined(SAI4_Block_A) || defined(SAI4_Block_B)
-    case LL_RCC_SAI4A_CLKSOURCE_PLL3P:
-    case LL_RCC_SAI4B_CLKSOURCE_PLL3P:
-#endif /* (SAI2_Block_A_BASE) || (SAI2_Block_B_BASE) */
+#endif /* RCC_CDCCIP1R_SAI2ASEL || RCC_CDCCIP1R_SAI2BSEL */
       if (LL_RCC_PLL3_IsReady() != 0U)
       {
         LL_RCC_GetPLL3ClockFreq(&PLL_Clocks);
@@ -867,14 +884,14 @@ uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
 #if defined(SAI3)
     case LL_RCC_SAI23_CLKSOURCE_I2S_CKIN:
 #endif /* SAI3 */
+#if defined(SAI4)
+    case LL_RCC_SAI4A_CLKSOURCE_I2S_CKIN:
+    case LL_RCC_SAI4B_CLKSOURCE_I2S_CKIN:
+#endif /* SAI4 */
 #if defined (RCC_CDCCIP1R_SAI2ASEL) || defined(RCC_CDCCIP1R_SAI2BSEL)
     case LL_RCC_SAI2A_CLKSOURCE_I2S_CKIN:
     case LL_RCC_SAI2B_CLKSOURCE_I2S_CKIN:
-#endif /* (RCC_CDCCIP1R_SAI2ASEL) || (RCC_CDCCIP1R_SAI2BSEL) */
-#if defined(SAI4_Block_A) || defined(SAI4_Block_B)
-    case LL_RCC_SAI4A_CLKSOURCE_I2S_CKIN:
-    case LL_RCC_SAI4B_CLKSOURCE_I2S_CKIN:
-#endif /* (SAI2_Block_A_BASE) || (SAI2_Block_B_BASE) */
+#endif /* RCC_CDCCIP1R_SAI2ASEL || RCC_CDCCIP1R_SAI2BSEL */
       sai_frequency = EXTERNAL_CLOCK_VALUE;
       break;
 
@@ -882,14 +899,14 @@ uint32_t LL_RCC_GetSAIClockFreq(uint32_t SAIxSource)
 #if defined(SAI3)
     case LL_RCC_SAI23_CLKSOURCE_CLKP:
 #endif /* SAI3 */
+#if defined(SAI4)
+    case LL_RCC_SAI4A_CLKSOURCE_CLKP:
+    case LL_RCC_SAI4B_CLKSOURCE_CLKP:
+#endif /* SAI4 */
 #if defined (RCC_CDCCIP1R_SAI2ASEL) || defined(RCC_CDCCIP1R_SAI2BSEL)
     case LL_RCC_SAI2A_CLKSOURCE_CLKP:
     case LL_RCC_SAI2B_CLKSOURCE_CLKP:
-#endif /* (RCC_CDCCIP1R_SAI2ASEL) || (RCC_CDCCIP1R_SAI2BSEL) */
-#if defined(SAI4_Block_A) || defined(SAI4_Block_B)
-    case LL_RCC_SAI4A_CLKSOURCE_CLKP:
-    case LL_RCC_SAI4B_CLKSOURCE_CLKP:
-#endif /* (SAI2_Block_A_BASE) || (SAI2_Block_B_BASE) */
+#endif /* RCC_CDCCIP1R_SAI2ASEL || RCC_CDCCIP1R_SAI2BSEL */
       sai_frequency = LL_RCC_GetCLKPClockFreq(LL_RCC_CLKP_CLKSOURCE);
       break;
 
@@ -1558,7 +1575,7 @@ uint32_t LL_RCC_GetQSPIClockFreq(uint32_t QSPIxSource)
 #if defined(OCTOSPI1) || defined(OCTOSPI2)
 /**
   * @brief  Return OSPI clock frequency
-  * @param  QSPIxSource This parameter can be one of the following values:
+  * @param  OSPIxSource This parameter can be one of the following values:
   *         @arg @ref LL_RCC_OSPI_CLKSOURCE
   * @retval OSPI clock frequency (in Hz)
   *         - @ref  LL_RCC_PERIPH_FREQUENCY_NO indicates that oscillator is not ready
@@ -1662,7 +1679,7 @@ uint32_t LL_RCC_GetCLKPClockFreq(uint32_t CLKPxSource)
   * @brief  Return SYSTEM clock frequency
   * @retval SYSTEM clock frequency (in Hz)
   */
-uint32_t RCC_GetSystemClockFreq(void)
+static uint32_t RCC_GetSystemClockFreq(void)
 {
   uint32_t frequency = 0U;
   LL_PLL_ClocksTypeDef PLL_Clocks;
@@ -1701,7 +1718,7 @@ uint32_t RCC_GetSystemClockFreq(void)
   * @param  SYSCLK_Frequency SYSCLK clock frequency
   * @retval HCLK clock frequency (in Hz)
   */
-uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
+static uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
 {
   /* HCLK clock frequency */
   return LL_RCC_CALC_HCLK_FREQ(SYSCLK_Frequency, LL_RCC_GetAHBPrescaler());
@@ -1712,7 +1729,7 @@ uint32_t RCC_GetHCLKClockFreq(uint32_t SYSCLK_Frequency)
   * @param  HCLK_Frequency HCLK clock frequency
   * @retval PCLK1 clock frequency (in Hz)
   */
-uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
+static uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
 {
   /* PCLK1 clock frequency */
   return LL_RCC_CALC_PCLK1_FREQ(HCLK_Frequency, LL_RCC_GetAPB1Prescaler());
@@ -1723,7 +1740,7 @@ uint32_t RCC_GetPCLK1ClockFreq(uint32_t HCLK_Frequency)
   * @param  HCLK_Frequency HCLK clock frequency
   * @retval PCLK2 clock frequency (in Hz)
   */
-uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
+static uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
 {
   /* PCLK2 clock frequency */
   return LL_RCC_CALC_PCLK2_FREQ(HCLK_Frequency, LL_RCC_GetAPB2Prescaler());
@@ -1734,7 +1751,7 @@ uint32_t RCC_GetPCLK2ClockFreq(uint32_t HCLK_Frequency)
   * @param  HCLK_Frequency HCLK clock frequency
   * @retval PCLK3 clock frequency (in Hz)
   */
-uint32_t RCC_GetPCLK3ClockFreq(uint32_t HCLK_Frequency)
+static uint32_t RCC_GetPCLK3ClockFreq(uint32_t HCLK_Frequency)
 {
   /* PCLK3 clock frequency */
   return LL_RCC_CALC_PCLK3_FREQ(HCLK_Frequency, LL_RCC_GetAPB3Prescaler());
@@ -1745,7 +1762,7 @@ uint32_t RCC_GetPCLK3ClockFreq(uint32_t HCLK_Frequency)
   * @param  HCLK_Frequency HCLK clock frequency
   * @retval PCLK4 clock frequency (in Hz)
   */
-uint32_t RCC_GetPCLK4ClockFreq(uint32_t HCLK_Frequency)
+static uint32_t RCC_GetPCLK4ClockFreq(uint32_t HCLK_Frequency)
 {
   /* PCLK4 clock frequency */
   return LL_RCC_CALC_PCLK4_FREQ(HCLK_Frequency, LL_RCC_GetAPB4Prescaler());
@@ -1767,4 +1784,3 @@ uint32_t RCC_GetPCLK4ClockFreq(uint32_t HCLK_Frequency)
 
 #endif /* USE_FULL_LL_DRIVER */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

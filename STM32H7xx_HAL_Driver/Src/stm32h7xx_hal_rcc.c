@@ -54,14 +54,12 @@
  ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
+  * This software is licensed under terms that can be found in the LICENSE file in
+  * the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
   */
 
@@ -228,8 +226,9 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   /* Reset CFGR register */
   CLEAR_REG(RCC->CFGR);
 
-  /* Update the SystemCoreClock global variable */
+  /* Update the SystemCoreClock and SystemD2Clock global variables */
   SystemCoreClock = HSI_VALUE;
+  SystemD2Clock = HSI_VALUE;
 
   /* Adapt Systick interrupt period */
   if(HAL_InitTick(uwTickPrio) != HAL_OK)
@@ -353,6 +352,11 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
 
   /* Reset PLL3FRACR register */
   CLEAR_REG(RCC->PLL3FRACR);
+
+#if defined(RCC_CR_HSEEXT)
+  /* Reset HSEEXT  */
+  CLEAR_BIT(RCC->CR, RCC_CR_HSEEXT);
+#endif /* RCC_CR_HSEEXT */
 
   /* Reset HSEBYP bit */
   CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
@@ -480,9 +484,23 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
       {
         return HAL_ERROR;
       }
-      /* Otherwise, just the calibration is allowed */
+      /* Otherwise, only HSI division and calibration are allowed */
       else
       {
+          /* Enable the Internal High Speed oscillator (HSI, HSIDIV2, HSIDIV4, or HSIDIV8) */
+          __HAL_RCC_HSI_CONFIG(RCC_OscInitStruct->HSIState);
+
+          /* Get Start Tick*/
+          tickstart = HAL_GetTick();
+
+          /* Wait till HSI is ready */
+          while(__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) == 0U)
+          {
+            if((uint32_t) (HAL_GetTick() - tickstart ) > HSI_TIMEOUT_VALUE)
+            {
+              return HAL_TIMEOUT;
+            }
+          }
         /* Adjusts the Internal High Speed oscillator (HSI) calibration value.*/
         __HAL_RCC_HSI_CALIBRATIONVALUE_ADJUST(RCC_OscInitStruct->HSICalibrationValue);
       }
@@ -745,6 +763,8 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
       {
         /* Check the parameters */
         assert_param(IS_RCC_PLLSOURCE(RCC_OscInitStruct->PLL.PLLSource));
+        assert_param(IS_RCC_PLLRGE_VALUE(RCC_OscInitStruct->PLL.PLLRGE));
+        assert_param(IS_RCC_PLLVCO_VALUE(RCC_OscInitStruct->PLL.PLLVCOSEL));
         assert_param(IS_RCC_PLLM_VALUE(RCC_OscInitStruct->PLL.PLLM));
         assert_param(IS_RCC_PLLN_VALUE(RCC_OscInitStruct->PLL.PLLN));
         assert_param(IS_RCC_PLLP_VALUE(RCC_OscInitStruct->PLL.PLLP));
@@ -859,7 +879,7 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
   *         contains the configuration information for the RCC peripheral.
   * @param  FLatency: FLASH Latency, this parameter depend on device selected
   *
-  * @note   The SystemCoreClock CMSIS variable is used to store System Clock Frequency
+  * @note   The SystemCoreClock CMSIS variable is used to store System Core Clock Frequency
   *         and updated by HAL_InitTick() function called within this function
   *
   * @note   The HSI is used (enabled by hardware) as system clock source after
@@ -882,6 +902,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
 {
   HAL_StatusTypeDef halstatus;
   uint32_t tickstart;
+  uint32_t common_system_clock;
 
    /* Check Null pointer */
   if(RCC_ClkInitStruct == NULL)
@@ -1174,10 +1195,23 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
 
   /* Update the SystemCoreClock global variable */
 #if defined(RCC_D1CFGR_D1CPRE)
-  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
+  common_system_clock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos]) & 0x1FU);
 #else
-  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->CDCFGR1 & RCC_CDCFGR1_CDCPRE)>> RCC_CDCFGR1_CDCPRE_Pos]) & 0x1FU);
+  common_system_clock = HAL_RCC_GetSysClockFreq() >> ((D1CorePrescTable[(RCC->CDCFGR1 & RCC_CDCFGR1_CDCPRE)>> RCC_CDCFGR1_CDCPRE_Pos]) & 0x1FU);
 #endif
+
+#if defined(RCC_D1CFGR_HPRE)
+  SystemD2Clock = (common_system_clock >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_HPRE)>> RCC_D1CFGR_HPRE_Pos]) & 0x1FU));
+#else
+  SystemD2Clock = (common_system_clock >> ((D1CorePrescTable[(RCC->CDCFGR1 & RCC_CDCFGR1_HPRE)>> RCC_CDCFGR1_HPRE_Pos]) & 0x1FU));
+#endif
+
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  SystemCoreClock = SystemD2Clock;
+#else
+  SystemCoreClock = common_system_clock;
+#endif /* DUAL_CORE && CORE_CM4 */
+
   /* Configure the source of time base considering new system clocks settings*/
   halstatus = HAL_InitTick (uwTickPrio);
 
@@ -1429,11 +1463,26 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
   */
 uint32_t HAL_RCC_GetHCLKFreq(void)
 {
-#if defined(RCC_D1CFGR_HPRE)
-  SystemD2Clock = (HAL_RCCEx_GetD1SysClockFreq() >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_HPRE)>> RCC_D1CFGR_HPRE_Pos]) & 0x1FU));
+uint32_t common_system_clock;
+
+#if defined(RCC_D1CFGR_D1CPRE)
+  common_system_clock = HAL_RCC_GetSysClockFreq() >> (D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_D1CPRE)>> RCC_D1CFGR_D1CPRE_Pos] & 0x1FU);
 #else
-  SystemD2Clock = (HAL_RCCEx_GetD1SysClockFreq() >> ((D1CorePrescTable[(RCC->CDCFGR1 & RCC_CDCFGR1_HPRE)>> RCC_CDCFGR1_HPRE_Pos]) & 0x1FU));
+  common_system_clock = HAL_RCC_GetSysClockFreq() >> (D1CorePrescTable[(RCC->CDCFGR1 & RCC_CDCFGR1_CDCPRE)>> RCC_CDCFGR1_CDCPRE_Pos] & 0x1FU);
 #endif
+
+#if defined(RCC_D1CFGR_HPRE)
+  SystemD2Clock = (common_system_clock >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_HPRE)>> RCC_D1CFGR_HPRE_Pos]) & 0x1FU));
+#else
+  SystemD2Clock = (common_system_clock >> ((D1CorePrescTable[(RCC->CDCFGR1 & RCC_CDCFGR1_HPRE)>> RCC_CDCFGR1_HPRE_Pos]) & 0x1FU));
+#endif
+
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+  SystemCoreClock = SystemD2Clock;
+#else
+  SystemCoreClock = common_system_clock;
+#endif /* DUAL_CORE && CORE_CM4 */
+
   return SystemD2Clock;
 }
 
@@ -1451,7 +1500,7 @@ uint32_t HAL_RCC_GetPCLK1Freq(void)
   return (HAL_RCC_GetHCLKFreq() >> ((D1CorePrescTable[(RCC->D2CFGR & RCC_D2CFGR_D2PPRE1)>> RCC_D2CFGR_D2PPRE1_Pos]) & 0x1FU));
 #else
  /* Get HCLK source and Compute PCLK1 frequency ---------------------------*/
-  return (HAL_RCC_GetHCLKFreq() >> D1CorePrescTable[(RCC->CDCFGR2 & RCC_CDCFGR2_CDPPRE1)>> POSITION_VAL(RCC_CDCFGR2_CDPPRE1_0)]);
+  return (HAL_RCC_GetHCLKFreq() >> ((D1CorePrescTable[(RCC->CDCFGR2 & RCC_CDCFGR2_CDPPRE1)>> RCC_CDCFGR2_CDPPRE1_Pos]) & 0x1FU));
 #endif
 }
 
@@ -1742,4 +1791,3 @@ __weak void HAL_RCC_CCSCallback(void)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
