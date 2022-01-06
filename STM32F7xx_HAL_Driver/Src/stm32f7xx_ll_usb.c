@@ -129,7 +129,7 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, const USB_OTG_CfgTyp
   }
 #ifdef USB_HS_PHYC
 
-  else if (cfg.phy_itface == USB_OTG_HS_EMBEDDED_PHY)
+  else if (cfg->phy_itface == USB_OTG_HS_EMBEDDED_PHY)
   {
     USBx->GCCFG &= ~(USB_OTG_GCCFG_PWRDWN);
 
