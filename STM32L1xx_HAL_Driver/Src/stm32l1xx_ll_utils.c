@@ -24,7 +24,9 @@
 #ifdef  USE_FULL_ASSERT
 #include "stm32_assert.h"
 #else
+#if !defined(USE_HAL_DRIVER)
 #define assert_param(expr) ((void)0U)
+#endif
 #endif
 
 /** @addtogroup STM32L1xx_LL_Driver
