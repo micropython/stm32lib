@@ -46,3 +46,77 @@ And similar for the other microcontroller classes.
 
 The included `fetch_from_upstream.sh` script can automatically copy and process
 new source code from an STM git repository.
+
+Updating to a new vendor version
+=================================
+
+To update a specific MCU series (e.g. STM32WB) to a new vendor version, follow
+these steps:
+
+1. **Clone or fetch the upstream STM32Cube repository**
+
+   For example, to update STM32WB:
+   ```bash
+   cd /tmp
+   git clone https://github.com/STMicroelectronics/STM32CubeWB.git
+   cd STM32CubeWB
+   git checkout v1.23.0  # or desired version
+   ```
+
+2. **Identify the current work branch before updating vendor**
+
+   In stm32lib folder identify the current released tag:
+   ```bash
+   cd path/to/stm32lib
+   git describe --tags --exact-match origin/vendor
+   ```
+
+   This shows the current version tag, for example:
+   ```
+   F0-1.9.0+F4-1.16.0+F7-1.7.0+G0-1.5.1+G4-1.3.0+H5-1.0.0+H7-1.11.0+L0-1.11.2+L1-1.10.3+L4-1.17.0+N6-1.1.0+WB-1.10.0+WL-1.1.0
+   ```
+   The convention is to use a similar tag name prepended with `work-` as the working branch when submitting an update.
+
+   Now checkout vendor to begin the update:
+   ```bash
+   git checkout vendor
+   ```
+
+3. **Import and commit the vendor update**
+
+   ```bash
+   ./fetch_from_upstream.sh STM32WB /tmp/STM32CubeWB
+   git add -A
+   git commit -m "Import STM32CubeWB v1.23.0 on DD-Mon-YYYY."
+   ```
+
+   The `fetch_from_upstream.sh` script will copy and process the new CMSIS and HAL
+   source files. The maintainer will create the version tag after merging.
+
+4. **Create new work branch and rebase patches**
+
+   Create a new work branch name by updating only the MCU series you're upgrading.
+   For example, updating WB from 1.10.0 to 1.23.0:
+   ```bash
+   # Old: origin/work-...-WB-1.10.0-...
+   # New: work-...-WB-1.23.0-...
+   git checkout -b work-F0-1.9.0+F4-1.16.0+F7-1.7.0+G0-1.5.1+G4-1.3.0+H5-1.0.0+H7-1.11.0+L0-1.11.2+L1-1.10.3+L4-1.17.0+N6-1.1.0+WB-1.23.0+WL-1.1.0 \
+       origin/work-F0-1.9.0+F4-1.16.0+F7-1.7.0+G0-1.5.1+G4-1.3.0+H5-1.0.0+H7-1.11.0+L0-1.11.2+L1-1.10.3+L4-1.17.0+N6-1.1.0+WB-1.10.0+WL-1.1.0
+   ```
+
+   Rebase all patches onto the updated vendor branch:
+   ```bash
+   git rebase vendor
+   ```
+
+   Resolve any conflicts if they arise. The rebase applies all MicroPython-specific
+   patches from the previous work branch onto the new vendor code.
+
+5. **Push and create pull request**
+
+   Push only the work branch (not vendor - the vendor commit will be included in the PR):
+   ```bash
+   git push -u fork work-F0-1.9.0+...+WB-1.23.0+...
+   gh pr create --repo micropython/stm32lib --base vendor \
+                --title "stm32lib: Update STM32WB from v1.10.0 to v1.23.0."
+   ```
