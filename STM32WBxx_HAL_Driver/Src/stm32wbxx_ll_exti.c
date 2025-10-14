@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -24,7 +23,7 @@
 #include "stm32_assert.h"
 #else
 #define assert_param(expr) ((void)0U)
-#endif
+#endif /* USE_FULL_ASSERT */
 
 /** @addtogroup STM32WBxx_LL_Driver
   * @{
@@ -48,14 +47,14 @@
 #define IS_LL_EXTI_LINE_32_63(__VALUE__)             (((__VALUE__) & ~LL_EXTI_LINE_ALL_32_63) == 0x00000000U)
 
 #define IS_LL_EXTI_MODE(__VALUE__)                   (((__VALUE__) == LL_EXTI_MODE_IT)            \
-                                                   || ((__VALUE__) == LL_EXTI_MODE_EVENT)         \
-                                                   || ((__VALUE__) == LL_EXTI_MODE_IT_EVENT))
+                                                      || ((__VALUE__) == LL_EXTI_MODE_EVENT)      \
+                                                      || ((__VALUE__) == LL_EXTI_MODE_IT_EVENT))
 
 
 #define IS_LL_EXTI_TRIGGER(__VALUE__)                (((__VALUE__) == LL_EXTI_TRIGGER_NONE)       \
-                                                   || ((__VALUE__) == LL_EXTI_TRIGGER_RISING)     \
-                                                   || ((__VALUE__) == LL_EXTI_TRIGGER_FALLING)    \
-                                                   || ((__VALUE__) == LL_EXTI_TRIGGER_RISING_FALLING))
+                                                      || ((__VALUE__) == LL_EXTI_TRIGGER_RISING)  \
+                                                      || ((__VALUE__) == LL_EXTI_TRIGGER_FALLING) \
+                                                      || ((__VALUE__) == LL_EXTI_TRIGGER_RISING_FALLING))
 
 /**
   * @}
@@ -295,5 +294,3 @@ void LL_EXTI_StructInit(LL_EXTI_InitTypeDef *EXTI_InitStruct)
   */
 
 #endif /* USE_FULL_LL_DRIVER */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

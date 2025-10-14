@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -357,6 +356,7 @@ typedef void (*pSAI_CallbackTypeDef)(SAI_HandleTypeDef *hsai);
 #define SAI_AUDIO_FREQUENCY_48K           48000U
 #define SAI_AUDIO_FREQUENCY_44K           44100U
 #define SAI_AUDIO_FREQUENCY_32K           32000U
+#define SAI_AUDIO_FREQUENCY_24K           24000U
 #define SAI_AUDIO_FREQUENCY_22K           22050U
 #define SAI_AUDIO_FREQUENCY_16K           16000U
 #define SAI_AUDIO_FREQUENCY_11K           11025U
@@ -809,8 +809,8 @@ void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai);
   * @{
   */
 /* Peripheral State functions  ************************************************/
-HAL_SAI_StateTypeDef HAL_SAI_GetState(SAI_HandleTypeDef *hsai);
-uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
+HAL_SAI_StateTypeDef HAL_SAI_GetState(const SAI_HandleTypeDef *hsai);
+uint32_t HAL_SAI_GetError(const SAI_HandleTypeDef *hsai);
 /**
   * @}
   */
@@ -840,9 +840,10 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
 
 #define IS_SAI_AUDIO_FREQUENCY(AUDIO) (((AUDIO) == SAI_AUDIO_FREQUENCY_192K) || ((AUDIO) == SAI_AUDIO_FREQUENCY_96K) || \
                                        ((AUDIO) == SAI_AUDIO_FREQUENCY_48K)  || ((AUDIO) == SAI_AUDIO_FREQUENCY_44K) || \
-                                       ((AUDIO) == SAI_AUDIO_FREQUENCY_32K)  || ((AUDIO) == SAI_AUDIO_FREQUENCY_22K) || \
-                                       ((AUDIO) == SAI_AUDIO_FREQUENCY_16K)  || ((AUDIO) == SAI_AUDIO_FREQUENCY_11K) || \
-                                       ((AUDIO) == SAI_AUDIO_FREQUENCY_8K)   || ((AUDIO) == SAI_AUDIO_FREQUENCY_MCKDIV))
+                                       ((AUDIO) == SAI_AUDIO_FREQUENCY_32K)  || ((AUDIO) == SAI_AUDIO_FREQUENCY_24K) || \
+                                       ((AUDIO) == SAI_AUDIO_FREQUENCY_22K)  || ((AUDIO) == SAI_AUDIO_FREQUENCY_16K) || \
+                                       ((AUDIO) == SAI_AUDIO_FREQUENCY_11K)  || ((AUDIO) == SAI_AUDIO_FREQUENCY_8K)  || \
+                                       ((AUDIO) == SAI_AUDIO_FREQUENCY_MCKDIV))
 
 #define IS_SAI_BLOCK_MCK_OVERSAMPLING(VALUE) (((VALUE) == SAI_MCK_OVERSAMPLING_DISABLE) || \
                                               ((VALUE) == SAI_MCK_OVERSAMPLING_ENABLE))
@@ -964,5 +965,3 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
 #endif
 
 #endif /* STM32WBxx_HAL_SAI_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

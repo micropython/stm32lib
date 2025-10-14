@@ -3,6 +3,17 @@
   * @file    stm32wbxx_ll_utils.h
   * @author  MCD Application Team
   * @brief   Header file of UTILS LL module.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                      ##### How to use this driver #####
@@ -15,17 +26,6 @@
       (+) PLL configuration functions
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -60,18 +60,18 @@ extern "C" {
 #define LL_MAX_DELAY                  0xFFFFFFFFU
 
 /**
- * @brief Unique device ID register base address
- */
+  * @brief Unique device ID register base address
+  */
 #define UID_BASE_ADDRESS              UID_BASE
 
 /**
- * @brief Flash size data register base address
- */
+  * @brief Flash size data register base address
+  */
 #define FLASHSIZE_BASE_ADDRESS        FLASHSIZE_BASE
 
 /**
- * @brief Package data register base address
- */
+  * @brief Package data register base address
+  */
 #define PACKAGE_BASE_ADDRESS          PACKAGE_BASE
 
 /**
@@ -256,7 +256,7 @@ __STATIC_INLINE uint32_t LL_GetPackageType(void)
   * @param  HCLKFrequency HCLK frequency in Hz (can be calculated thanks to RCC helper macro or function @ref LL_RCC_GetSystemClocksFreq (HCLK1_Frequency field))
   * @note   When a RTOS is used, it is recommended to avoid changing the SysTick
   *         configuration by calling this function, for a delay use rather osDelay RTOS service.
-  * @param  Ticks Number of ticks
+  * @param  Ticks Frequency of Ticks (Hz)
   * @retval None
   */
 __STATIC_INLINE void LL_InitTick(uint32_t HCLKFrequency, uint32_t Ticks)
@@ -310,5 +310,3 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEBypass,
 #endif
 
 #endif /* STM32WBxx_LL_UTILS_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

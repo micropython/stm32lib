@@ -11,13 +11,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -71,7 +70,7 @@
   * @}
   */
 
- /**
+/**
   * @}
   */
 
@@ -102,7 +101,7 @@ void HAL_PWR_DeInit(void)
 {
   /* Apply reset values to all PWR registers */
   /* Note: Update of each register required since PWR global reset is not     */
-  /*       available at RCC level on this STM32 serie.                        */
+  /*       available at RCC level on this STM32 series.                       */
   LL_PWR_WriteReg(CR1, PWR_CR1_RESET_VALUE);
   LL_PWR_WriteReg(CR2, PWR_CR2_RESET_VALUE);
   LL_PWR_WriteReg(CR3, PWR_CR3_RESET_VALUE);
@@ -117,7 +116,7 @@ void HAL_PWR_DeInit(void)
 #if defined(GPIOD)
   LL_PWR_WriteReg(PUCRD, PWR_PUCRD_RESET_VALUE);
   LL_PWR_WriteReg(PDCRD, PWR_PDCRD_RESET_VALUE);
-#endif
+#endif /* GPIOD */
   LL_PWR_WriteReg(PUCRE, PWR_PUCRE_RESET_VALUE);
   LL_PWR_WriteReg(PDCRE, PWR_PDCRE_RESET_VALUE);
   LL_PWR_WriteReg(PUCRH, PWR_PUCRH_RESET_VALUE);
@@ -126,24 +125,46 @@ void HAL_PWR_DeInit(void)
   LL_PWR_WriteReg(C2CR3, PWR_C2CR3_RESET_VALUE);
 
   /* Clear all flags */
+#if defined(PWR_CR3_E802A) && defined(PWR_CR5_SMPSEN)
   LL_PWR_WriteReg(SCR,
-                    LL_PWR_SCR_CC2HF
-                  | LL_PWR_SCR_CBLEAF
-                  | LL_PWR_SCR_CCRPEF
-#if defined(PWR_CR3_E802A)
-                  | LL_PWR_SCR_C802AF
-                  | LL_PWR_SCR_C802WUF
+                LL_PWR_SCR_CC2HF
+                | LL_PWR_SCR_CBLEAF
+                | LL_PWR_SCR_CCRPEF
+                | LL_PWR_SCR_C802AF
+                | LL_PWR_SCR_C802WUF
+                | LL_PWR_SCR_CBLEWUF
+                | LL_PWR_SCR_CBORHF
+                | LL_PWR_SCR_CSMPSFBF
+                | LL_PWR_SCR_CWUF);
+#elif defined(PWR_CR3_E802A)
+  LL_PWR_WriteReg(SCR,
+                LL_PWR_SCR_CC2HF
+                | LL_PWR_SCR_CBLEAF
+                | LL_PWR_SCR_CCRPEF
+                | LL_PWR_SCR_C802AF
+                | LL_PWR_SCR_C802WUF
+                | LL_PWR_SCR_CBLEWUF
+                | LL_PWR_SCR_CWUF);
+#elif defined(PWR_CR5_SMPSEN)
+  LL_PWR_WriteReg(SCR,
+                LL_PWR_SCR_CC2HF
+                | LL_PWR_SCR_CBLEAF
+                | LL_PWR_SCR_CCRPEF
+                | LL_PWR_SCR_CBLEWUF
+                | LL_PWR_SCR_CBORHF
+                | LL_PWR_SCR_CSMPSFBF
+                | LL_PWR_SCR_CWUF);
+#else
+  LL_PWR_WriteReg(SCR,
+                LL_PWR_SCR_CC2HF
+                | LL_PWR_SCR_CBLEAF
+                | LL_PWR_SCR_CCRPEF
+                | LL_PWR_SCR_CBLEWUF
+                | LL_PWR_SCR_CWUF);
 #endif
-                  | LL_PWR_SCR_CBLEWUF
-#if defined(PWR_CR5_SMPSEN)
-                  | LL_PWR_SCR_CBORHF
-                  | LL_PWR_SCR_CSMPSFBF
-#endif
-                  | LL_PWR_SCR_CWUF
-                 );
 
   LL_PWR_WriteReg(EXTSCR,
-                    LL_PWR_EXTSCR_CCRPF
+                  LL_PWR_EXTSCR_CCRPF
                   | LL_PWR_EXTSCR_C2CSSF
                   | LL_PWR_EXTSCR_C1CSSF
                  );
@@ -225,7 +246,7 @@ void HAL_PWR_DisableBkUpAccess(void)
       (+) Stop 2 mode: all clocks are stopped except LSI and LSE, main regulator off, low power regulator on, reduced set of waking up IPs compared to Stop 1 mode.
 
       (+) Standby mode with SRAM2a: all clocks are stopped except LSI and LSE, SRAM2a content preserved, main regulator off, low power regulator on.
-          Note: On devices STM32WB15xx, STM32WB10xx, retention is extended to SRAM1, SRAM2a, SRAM2b.
+          Note: On devices STM32WB15xx, STM32WB10xx, STM32WB1Mxx retention is extended to SRAM1, SRAM2a, SRAM2b.
       (+) Standby mode without SRAM2a: all clocks are stopped except LSI and LSE, main and low power regulators off.
 
       (+) Shutdown mode: all clocks are stopped except LSE, main and low power regulators off.
@@ -269,7 +290,7 @@ void HAL_PWR_DisableBkUpAccess(void)
           The Stop 0, Stop 1 or Stop 2 modes are entered thru the following API's:
           (++) HAL_PWREx_EnterSTOP0Mode() for mode 0, HAL_PWREx_EnterSTOP1Mode() for mode 1, HAL_PWREx_EnterSTOP2Mode() for mode 2
                or for porting reasons HAL_PWR_EnterSTOPMode().
-               Note: Low power Stop2 mode is not available on devices STM32WB15xx, STM32WB10xx.
+               Note: Low power Stop2 mode is not available on devices STM32WB15xx, STM32WB10xx, STM32WB1Mxx.
 
       (+) Regulator setting (applicable to HAL_PWR_EnterSTOPMode() only):
           (++) PWR_MAINREGULATOR_ON: Regulator in main mode (STOP0 mode)
@@ -375,7 +396,7 @@ HAL_StatusTypeDef HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
 
   /* Clear any previous config. Keep it clear if no event or IT mode is selected */
 
-  /* Note: On STM32WB serie, power PVD event is not available on AIEC lines   */
+  /* Note: On STM32WB series, power PVD event is not available on AIEC lines   */
   /*       (only interruption is available through AIEC line 16).             */
   __HAL_PWR_PVD_EXTI_DISABLE_IT();      /*CPU1*/
   __HAL_PWR_PVD_EXTIC2_DISABLE_IT();    /*CPU2*/
@@ -384,19 +405,19 @@ HAL_StatusTypeDef HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
   __HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();
 
   /* Configure interrupt mode */
-  if((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
+  if ((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
   {
     /* Set CPU1 as wakeup target */
     __HAL_PWR_PVD_EXTI_ENABLE_IT();
   }
 
   /* Configure the edge */
-  if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
+  if ((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
   {
     __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();
   }
 
-  if((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
+  if ((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
   {
     __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
   }
@@ -529,7 +550,7 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
 
   /* Select SLEEP mode entry -------------------------------------------------*/
-  if(SLEEPEntry == PWR_SLEEPENTRY_WFI)
+  if (SLEEPEntry == PWR_SLEEPENTRY_WFI)
   {
     /* Request Wait For Interrupt */
     __WFI();
@@ -583,7 +604,7 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR(Regulator));
 
-  if(Regulator == PWR_LOWPOWERREGULATOR_ON)
+  if (Regulator == PWR_LOWPOWERREGULATOR_ON)
   {
     HAL_PWREx_EnterSTOP1Mode(STOPEntry);
   }
@@ -622,10 +643,10 @@ void HAL_PWR_EnterSTANDBYMode(void)
   /* Set SLEEPDEEP bit of Cortex System Control Register */
   SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
 
-/* This option is used to ensure that store operations are completed */
-#if defined ( __CC_ARM)
+  /* This option is used to ensure that store operations are completed */
+#if defined (__CC_ARM)
   __force_stores();
-#endif
+#endif /* __CC_ARM */
 
   /* Request Wait For Interrupt */
   __WFI();
@@ -718,4 +739,4 @@ __weak void HAL_PWR_PVDCallback(void)
   * @}
   */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

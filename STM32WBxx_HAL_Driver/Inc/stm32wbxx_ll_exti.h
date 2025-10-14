@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -107,28 +106,28 @@ typedef struct
 #define LL_EXTI_LINE_17                EXTI_IMR1_IM17          /*!< Extended line 17 */
 #define LL_EXTI_LINE_18                EXTI_IMR1_IM18          /*!< Extended line 18 */
 #define LL_EXTI_LINE_19                EXTI_IMR1_IM19          /*!< Extended line 19 */
-#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined STM32WB35xx
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx) || defined (STM32WB15xx) || defined(STM32WB1Mxx)
 #define LL_EXTI_LINE_20                EXTI_IMR1_IM20          /*!< Extended line 20 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || ... */
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define LL_EXTI_LINE_21                EXTI_IMR1_IM21          /*!< Extended line 21 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || STM32WB35xx */
 #define LL_EXTI_LINE_22                EXTI_IMR1_IM22          /*!< Extended line 22 */
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define LL_EXTI_LINE_23                EXTI_IMR1_IM23          /*!< Extended line 23 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || STM32WB35xx */
 #define LL_EXTI_LINE_24                EXTI_IMR1_IM24          /*!< Extended line 24 */
-#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined STM32WB35xx
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx) || defined (STM32WB15xx) || defined(STM32WB1Mxx)
 #define LL_EXTI_LINE_25                EXTI_IMR1_IM25          /*!< Extended line 25 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || ... */
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define LL_EXTI_LINE_28                EXTI_IMR1_IM28          /*!< Extended line 28 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || STM32WB35xx */
 #define LL_EXTI_LINE_29                EXTI_IMR1_IM29          /*!< Extended line 29 */
 #define LL_EXTI_LINE_30                EXTI_IMR1_IM30          /*!< Extended line 30 */
-#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined STM32WB35xx
+#if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx) || defined (STM32WB15xx) || defined(STM32WB1Mxx)
 #define LL_EXTI_LINE_31                EXTI_IMR1_IM31          /*!< Extended line 31 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || ... */
 
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB35xx)
 #define LL_EXTI_LINE_ALL_0_31          (LL_EXTI_LINE_0 | LL_EXTI_LINE_1 | LL_EXTI_LINE_2 | \
@@ -141,6 +140,16 @@ typedef struct
                                         LL_EXTI_LINE_21 | LL_EXTI_LINE_22 | LL_EXTI_LINE_23 | \
                                         LL_EXTI_LINE_24 | LL_EXTI_LINE_25 | LL_EXTI_LINE_28 | \
                                         LL_EXTI_LINE_29 | LL_EXTI_LINE_30 | LL_EXTI_LINE_31) /*!< All Extended line not reserved*/
+#elif defined (STM32WB15xx) || defined(STM32WB1Mxx)
+#define LL_EXTI_LINE_ALL_0_31          (LL_EXTI_LINE_0 | LL_EXTI_LINE_1 | LL_EXTI_LINE_2 | \
+                                        LL_EXTI_LINE_3 | LL_EXTI_LINE_4 | LL_EXTI_LINE_5 | \
+                                        LL_EXTI_LINE_6 | LL_EXTI_LINE_7 | LL_EXTI_LINE_8 | \
+                                        LL_EXTI_LINE_9 | LL_EXTI_LINE_10 | LL_EXTI_LINE_11 | \
+                                        LL_EXTI_LINE_12 | LL_EXTI_LINE_13 | LL_EXTI_LINE_14 | \
+                                        LL_EXTI_LINE_15 | LL_EXTI_LINE_16 | LL_EXTI_LINE_17 | \
+                                        LL_EXTI_LINE_18 | LL_EXTI_LINE_19 | LL_EXTI_LINE_20 | \
+                                        LL_EXTI_LINE_22 | LL_EXTI_LINE_24 | LL_EXTI_LINE_25 | \
+                                        LL_EXTI_LINE_29 | LL_EXTI_LINE_30 | LL_EXTI_LINE_31) /*!< All Extended line not reserved*/
 #else
 #define LL_EXTI_LINE_ALL_0_31          (LL_EXTI_LINE_0 | LL_EXTI_LINE_1 | LL_EXTI_LINE_2 | \
                                         LL_EXTI_LINE_3 | LL_EXTI_LINE_4 | LL_EXTI_LINE_5 | \
@@ -150,7 +159,7 @@ typedef struct
                                         LL_EXTI_LINE_15 | LL_EXTI_LINE_16 | LL_EXTI_LINE_17 | \
                                         LL_EXTI_LINE_18 | LL_EXTI_LINE_19 | LL_EXTI_LINE_22 | \
                                         LL_EXTI_LINE_24 | LL_EXTI_LINE_29 | LL_EXTI_LINE_30) /*!< All Extended line not reserved*/
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || STM32WB35xx */
 
 #define LL_EXTI_LINE_33                EXTI_IMR2_IM33          /*!< Extended line 33 */
 #define LL_EXTI_LINE_36                EXTI_IMR2_IM36          /*!< Extended line 36 */
@@ -162,12 +171,12 @@ typedef struct
 #define LL_EXTI_LINE_42                EXTI_IMR2_IM42          /*!< Extended line 42 */
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx)
 #define LL_EXTI_LINE_43                EXTI_IMR2_IM43          /*!< Extended line 43 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx */
 #define LL_EXTI_LINE_44                EXTI_IMR2_IM44          /*!< Extended line 44 */
 #define LL_EXTI_LINE_45                EXTI_IMR2_IM45          /*!< Extended line 45 */
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx) || defined (STM32WB50xx) || defined (STM32WB35xx) || defined (STM32WB30xx)
 #define LL_EXTI_LINE_46                EXTI_IMR2_IM46          /*!< Extended line 46 */
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx || ... */
 #define LL_EXTI_LINE_48                EXTI_IMR2_IM48          /*!< Extended line 48 */
 
 #if defined (STM32WB55xx) || defined (STM32WB5Mxx)
@@ -186,7 +195,7 @@ typedef struct
                                         LL_EXTI_LINE_38 | LL_EXTI_LINE_39 | LL_EXTI_LINE_40 | \
                                         LL_EXTI_LINE_41 | LL_EXTI_LINE_42 | LL_EXTI_LINE_44 | \
                                         LL_EXTI_LINE_45 | LL_EXTI_LINE_48)  /*!< All Extended line not reserved*/
-#endif
+#endif /* STM32WB55xx || STM32WB5Mxx */
 
 
 #define LL_EXTI_LINE_ALL               (0xFFFFFFFFU)  /*!< All Extended line */
@@ -266,8 +275,8 @@ typedef struct
 
 /* Exported functions --------------------------------------------------------*/
 /** @defgroup EXTI_LL_Exported_Functions EXTI Exported Functions
- * @{
- */
+  * @{
+  */
 /** @defgroup EXTI_LL_EF_IT_Management IT_Management
   * @{
   */
@@ -1396,7 +1405,7 @@ __STATIC_INLINE void LL_EXTI_GenerateSWI_0_31(uint32_t ExtiLine)
 
 /**
   * @brief  Generate a software Interrupt Event for Lines in range 32 to 63
-  * @note If the interrupt is enabled on this line inthe EXTI_IMR2, writing a 1 to
+  * @note If the interrupt is enabled on this line in the EXTI_IMR2, writing a 1 to
   *       this bit when it is at '0' sets the corresponding pending bit in EXTI_PR2
   *       resulting in an interrupt request generation.
   *       This bit is cleared by clearing the corresponding bit in the EXTI_PR2
@@ -1622,5 +1631,3 @@ void LL_EXTI_StructInit(LL_EXTI_InitTypeDef *EXTI_InitStruct);
 #endif
 
 #endif /* STM32WBxx_LL_EXTI_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

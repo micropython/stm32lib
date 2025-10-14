@@ -7,6 +7,17 @@
   *         functionalities of the DMA Extension peripheral:
   *           + Extended features functions
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
   ==============================================================================
                         ##### How to use this driver #####
@@ -26,17 +37,6 @@
       (exception done if a given DMA is not using the DMAMUX SYNC block neither a request generator)
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -68,8 +68,8 @@
   */
 
 /** @defgroup DMAEx_Exported_Functions_Group1 DMAEx Extended features functions
- *  @brief   Extended features functions
- *
+  *  @brief   Extended features functions
+  *
 @verbatim
  ===============================================================================
                 #####  Extended features functions  #####
@@ -134,12 +134,13 @@ HAL_StatusTypeDef HAL_DMAEx_ConfigMuxSync(DMA_HandleTypeDef *hdma, HAL_DMA_MuxSy
   * @brief  Configure the DMAMUX request generator block used by the given DMA channel (instance).
   * @param  hdma Pointer to a DMA_HandleTypeDef structure that contains
   *                     the configuration information for the specified DMA channel.
-* @param  pRequestGeneratorConfig Pointer to HAL_DMA_MuxRequestGeneratorConfigTypeDef :
+  * @param  pRequestGeneratorConfig Pointer to HAL_DMA_MuxRequestGeneratorConfigTypeDef :
   *         contains the request generator parameters.
   *
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator(DMA_HandleTypeDef *hdma, HAL_DMA_MuxRequestGeneratorConfigTypeDef *pRequestGeneratorConfig)
+HAL_StatusTypeDef HAL_DMAEx_ConfigMuxRequestGenerator(DMA_HandleTypeDef *hdma,
+                                                      HAL_DMA_MuxRequestGeneratorConfigTypeDef *pRequestGeneratorConfig)
 {
   /* Check the parameters */
   assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
@@ -292,5 +293,3 @@ void HAL_DMAEx_MUX_IRQHandler(DMA_HandleTypeDef *hdma)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

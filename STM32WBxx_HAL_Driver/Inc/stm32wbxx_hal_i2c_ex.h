@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -64,7 +63,7 @@ extern "C" {
 #define I2C_FASTMODEPLUS_I2C3           SYSCFG_CFGR1_I2C3_FMP                           /*!< Enable Fast Mode Plus on I2C3 pins */
 #else
 #define I2C_FASTMODEPLUS_I2C3           (uint32_t)(0x00000400U | I2C_FMP_NOT_SUPPORTED) /*!< Fast Mode Plus I2C3 not supported  */
-#endif
+#endif /* SYSCFG_CFGR1_I2C3_FMP */
 /**
   * @}
   */
@@ -87,7 +86,7 @@ extern "C" {
   * @{
   */
 
-/** @addtogroup I2CEx_Exported_Functions_Group1 I2C Extended Filter Mode Functions
+/** @addtogroup I2CEx_Exported_Functions_Group1 Filter Mode Functions
   * @{
   */
 /* Peripheral Control functions  ************************************************/
@@ -97,7 +96,7 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
   * @}
   */
 
-/** @addtogroup I2CEx_Exported_Functions_Group2 I2C Extended WakeUp Mode Functions
+/** @addtogroup I2CEx_Exported_Functions_Group2 WakeUp Mode Functions
   * @{
   */
 HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp(I2C_HandleTypeDef *hi2c);
@@ -106,7 +105,7 @@ HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp(I2C_HandleTypeDef *hi2c);
   * @}
   */
 
-/** @addtogroup I2CEx_Exported_Functions_Group3 I2C Extended FastModePlus Functions
+/** @addtogroup I2CEx_Exported_Functions_Group3 Fast Mode Plus Functions
   * @{
   */
 void HAL_I2CEx_EnableFastModePlus(uint32_t ConfigFastModePlus);
@@ -114,7 +113,6 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 /**
   * @}
   */
-
 
 /**
   * @}
@@ -134,7 +132,7 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
   * @{
   */
 #define IS_I2C_ANALOG_FILTER(FILTER)    (((FILTER) == I2C_ANALOGFILTER_ENABLE) || \
-                                          ((FILTER) == I2C_ANALOGFILTER_DISABLE))
+                                         ((FILTER) == I2C_ANALOGFILTER_DISABLE))
 
 #define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000FU)
 
@@ -170,5 +168,3 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 #endif
 
 #endif /* STM32WBxx_HAL_I2C_EX_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
