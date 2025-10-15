@@ -2578,7 +2578,7 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   *            @arg RCC_PERIPHCLK_XSPI1    : XSPI1 peripheral clock
   *            @arg RCC_PERIPHCLK_XSPI2    : XSPI2 peripheral clock
   *            @arg RCC_PERIPHCLK_XSPI3    : XSPI3 peripheral clock
-  * @retval Frequency in KHz
+  * @retval Frequency in Hz
   */
 uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint64_t PeriphClk)
 {
@@ -2978,6 +2978,15 @@ uint32_t HAL_RCCEx_GetPLL4CLKFreq(void)
   }
 
   return plloutputfreq;
+}
+
+/**
+  * @brief  Return the Timer group frequency.
+  * @retval Timer group frequency in Hz
+  */
+uint32_t HAL_RCCEx_GetTIMGFreq(void)
+{
+  return LL_RCC_CALC_TIMG_FREQ(HAL_RCC_GetSysClockFreq(), LL_RCC_GetTIMPrescaler());
 }
 
 /**
@@ -3449,7 +3458,7 @@ static uint32_t RCCEx_GetADCCLKFreq(uint32_t ADCxSource)
       break;
 
     case LL_RCC_ADC_CLKSOURCE_TIMG:
-      adc_frequency = HAL_RCC_GetSysClockFreq() / (1UL << LL_RCC_GetTIMPrescaler());
+      adc_frequency = LL_RCC_CALC_TIMG_FREQ(HAL_RCC_GetSysClockFreq(), LL_RCC_GetTIMPrescaler());
       break;
 
     default:
@@ -3559,7 +3568,7 @@ static uint32_t RCCEx_GetADFCLKFreq(uint32_t ADFxSource)
       break;
 
     case LL_RCC_ADF1_CLKSOURCE_TIMG:
-      adf_frequency = HAL_RCC_GetSysClockFreq() / (1UL << LL_RCC_GetTIMPrescaler());
+      adf_frequency = LL_RCC_CALC_TIMG_FREQ(HAL_RCC_GetSysClockFreq(), LL_RCC_GetTIMPrescaler());
       break;
 
     default:
@@ -4481,7 +4490,7 @@ static uint32_t RCCEx_GetLPTIMCLKFreq(uint32_t LPTIMxSource)
     case LL_RCC_LPTIM3_CLKSOURCE_TIMG:
     case LL_RCC_LPTIM4_CLKSOURCE_TIMG:
     case LL_RCC_LPTIM5_CLKSOURCE_TIMG:
-      lptim_frequency = HAL_RCC_GetSysClockFreq() / (1UL << LL_RCC_GetTIMPrescaler());
+      lptim_frequency = LL_RCC_CALC_TIMG_FREQ(HAL_RCC_GetSysClockFreq(), LL_RCC_GetTIMPrescaler());
       break;
 
     default:
@@ -4766,7 +4775,7 @@ static uint32_t RCCEx_GetMDFCLKFreq(uint32_t MDFxSource)
       break;
 
     case LL_RCC_MDF1_CLKSOURCE_TIMG:
-      adf_frequency = HAL_RCC_GetSysClockFreq() / (1UL << LL_RCC_GetTIMPrescaler());
+      adf_frequency = LL_RCC_CALC_TIMG_FREQ(HAL_RCC_GetSysClockFreq(), LL_RCC_GetTIMPrescaler());
       break;
 
     default:

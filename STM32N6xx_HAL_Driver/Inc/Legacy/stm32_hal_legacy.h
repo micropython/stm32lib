@@ -564,6 +564,9 @@ extern "C" {
 #define OB_nBOOT0_RESET               OB_NBOOT0_RESET
 #define OB_nBOOT0_SET                 OB_NBOOT0_SET
 #endif /* STM32U0 */
+#if defined(STM32H5)
+#define FLASH_ECC_AREA_EDATA          FLASH_ECC_AREA_EDATA_BANK1
+#endif /* STM32H5 */
 
 /**
   * @}

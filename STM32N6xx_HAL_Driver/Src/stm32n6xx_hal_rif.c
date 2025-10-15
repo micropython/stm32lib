@@ -372,12 +372,12 @@ void HAL_RIF_RISC_SetSlaveSecureAttributes(uint32_t PeriphId, uint32_t SecPriv)
   assert_param(IS_RIF_SEC_PRIV_ATTRIBUTE(SecPriv));
 
   sec_reg_val = RIFSC->RISC_SECCFGRx[PeriphId >> RIF_PERIPH_REG_SHIFT];
-  sec_reg_val &= (~(1U << (PeriphId & RIF_PERIPH_BIT_POSITION)));
+  sec_reg_val &= (~(1UL << (PeriphId & RIF_PERIPH_BIT_POSITION)));
   sec_reg_val |= ((SecPriv & RIF_ATTRIBUTE_SEC) << (PeriphId & RIF_PERIPH_BIT_POSITION));
   RIFSC->RISC_SECCFGRx[PeriphId >> RIF_PERIPH_REG_SHIFT] = sec_reg_val;
 
   sec_reg_val = RIFSC->RISC_PRIVCFGRx[PeriphId >> RIF_PERIPH_REG_SHIFT];
-  sec_reg_val &= (~(1U << (PeriphId & RIF_PERIPH_BIT_POSITION)));
+  sec_reg_val &= (~(1UL << (PeriphId & RIF_PERIPH_BIT_POSITION)));
   sec_reg_val |= (((SecPriv & RIF_ATTRIBUTE_PRIV) >> 1U) << (PeriphId & RIF_PERIPH_BIT_POSITION));
   RIFSC->RISC_PRIVCFGRx[PeriphId >> RIF_PERIPH_REG_SHIFT] = sec_reg_val;
 }

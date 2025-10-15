@@ -110,6 +110,8 @@ extern "C" {
 #define RIF_RISC_PERIPH_INDEX_USART10      (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC24_Pos)
 #define RIF_RISC_PERIPH_INDEX_LPUART1      (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC25_Pos)
 #define RIF_RISC_PERIPH_INDEX_FDCAN1       (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC26_Pos)
+#define RIF_RISC_PERIPH_INDEX_FDCAN2       (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC26_Pos)
+#define RIF_RISC_PERIPH_INDEX_FDCAN3       (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC26_Pos)
 #define RIF_RISC_PERIPH_INDEX_TIM1         (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC27_Pos)
 #define RIF_RISC_PERIPH_INDEX_TIM2         (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC28_Pos)
 #define RIF_RISC_PERIPH_INDEX_TIM3         (RIF_PERIPH_REG0 | RIFSC_RISC_SECCFGRx_SEC29_Pos)
@@ -546,7 +548,7 @@ typedef struct
   */
 
 /* Private constants ---------------------------------------------------------*/
-/** @defgroup RCC_Private_Constants RCC Private Constants
+/** @defgroup RIF_Private_Constants RIF Private Constants
   * @{
   */
 
@@ -575,8 +577,8 @@ typedef struct
 /** @defgroup RIF_MASK RIF register masks
   * @{
   */
-#define RIF_CID_MASK                       0x000000FFU
-#define RIF_ATTRIBUTE_MASK                 0x00000003U
+#define RIF_CID_MASK                       0x000000FFUL
+#define RIF_ATTRIBUTE_MASK                 0x00000003UL
 #define RISAF_READ_WRITE_MASK              (RISAF_READ_ENABLE | RISAF_WRITE_ENABLE)
 /**
   * @}
