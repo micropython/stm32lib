@@ -14,36 +14,38 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2019-2022 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
 
   .syntax unified
-    .cpu cortex-m4
-    .fpu softvfp
-    .thumb
+  .cpu cortex-m4
+  .fpu softvfp
+  .thumb
 
 .global g_pfnVectors
 .global Default_Handler
 
 /* start address for the initialization values of the .data section.
 defined in linker script */
-.word   _sidata
+.word _sidata
 /* start address for the .data section. defined in linker script */
-.word   _sdata
+.word _sdata
 /* end address for the .data section. defined in linker script */
-.word   _edata
+.word _edata
 /* start address for the .bss section. defined in linker script */
-.word   _sbss
+.word _sbss
 /* end address for the .bss section. defined in linker script */
-.word   _ebss
+.word _ebss
+/* start address for the initialization values of the .MB_MEM2 section.
+defined in linker script */
+.word _siMB_MEM2
 /* start address for the .MB_MEM2 section. defined in linker script */
 .word _sMB_MEM2
 /* end address for the .MB_MEM2 section. defined in linker script */
@@ -93,25 +95,25 @@ LoopFillZerobss:
 Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
-/* Call the clock system intitialization function.*/
+/* Call the clock system initialization function.*/
   bl  SystemInit
 
 /* Copy the data segment initializers from flash to SRAM */
   INIT_DATA _sdata, _edata, _sidata
+  INIT_DATA _sMB_MEM2, _eMB_MEM2, _siMB_MEM2
 
 /* Zero fill the bss segments. */
   INIT_BSS _sbss, _ebss
-  INIT_BSS _sMB_MEM2, _eMB_MEM2
 
 /* Call static constructors */
   bl __libc_init_array
 /* Call the application s entry point.*/
-    bl  main
+  bl main
 
 LoopForever:
   b LoopForever
 
-.size   Reset_Handler, .-Reset_Handler
+.size Reset_Handler, .-Reset_Handler
 
 /**
  * @brief  This is the code that gets called when the processor receives an
@@ -124,8 +126,8 @@ LoopForever:
   .section .text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
-    b   Infinite_Loop
-    .size   Default_Handler, .-Default_Handler
+  b Infinite_Loop
+  .size Default_Handler, .-Default_Handler
 /******************************************************************************
 *
 * The minimal vector table for a Cortex-M4.  Note that the proper constructs
@@ -133,15 +135,14 @@ Infinite_Loop:
 * 0x0000.0000.
 *
 ******************************************************************************/
-    .section    .isr_vector,"a",%progbits
-    .type   g_pfnVectors, %object
-    .size   g_pfnVectors, .-g_pfnVectors
+  .section  .isr_vector,"a",%progbits
+  .type  g_pfnVectors, %object
 
 
 g_pfnVectors:
   .word _estack
   .word Reset_Handler
-    .word   NMI_Handler
+  .word NMI_Handler
   .word HardFault_Handler
   .word MemManage_Handler
   .word BusFault_Handler
@@ -219,6 +220,8 @@ g_pfnVectors:
   .word DMA2_Channel7_IRQHandler
   .word DMAMUX1_OVR_IRQHandler
 
+  .size  g_pfnVectors, .-g_pfnVectors
+
 /*******************************************************************************
 *
 * Provide weak aliases for each Exception handler to the Default_Handler.
@@ -226,7 +229,7 @@ g_pfnVectors:
 * this definition.
 *
 *******************************************************************************/
-  .weak NMI_Handler
+  .weak  NMI_Handler
   .thumb_set NMI_Handler,Default_Handler
 
   .weak  HardFault_Handler
@@ -442,4 +445,3 @@ g_pfnVectors:
   .weak  DMAMUX1_OVR_IRQHandler
   .thumb_set DMAMUX1_OVR_IRQHandler,Default_Handler
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

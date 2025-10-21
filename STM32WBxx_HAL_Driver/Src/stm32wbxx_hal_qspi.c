@@ -14,6 +14,17 @@
   *           + Errors management and abort functionality
   *
   *
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
   @verbatim
  ===============================================================================
                         ##### How to use this driver #####
@@ -150,7 +161,7 @@
       and a pointer to the user callback function.
 
       Use function HAL_QSPI_UnRegisterCallback() to reset a callback to the default
-      weak (surcharged) function. It allows to reset following callbacks:
+      weak (overridden) function. It allows to reset following callbacks:
         (+) ErrorCallback : callback when error occurs.
         (+) AbortCpltCallback : callback when abort is completed.
         (+) FifoThresholdCallback : callback when the fifo threshold is reached.
@@ -166,9 +177,9 @@
       This function) takes as parameters the HAL peripheral handle and the Callback ID.
 
       By default, after the HAL_QSPI_Init and if the state is HAL_QSPI_STATE_RESET
-      all callbacks are reset to the corresponding legacy weak (surcharged) functions.
+      all callbacks are reset to the corresponding legacy weak (overridden) functions.
       Exception done for MspInit and MspDeInit callbacks that are respectively
-      reset to the legacy weak (surcharged) functions in the HAL_QSPI_Init
+      reset to the legacy weak (overridden) functions in the HAL_QSPI_Init
       and  HAL_QSPI_DeInit only when these callbacks are null (not registered beforehand).
       If not, MspInit or MspDeInit are not null, the HAL_QSPI_Init and HAL_QSPI_DeInit
       keep and use the user MspInit/MspDeInit callbacks (registered beforehand)
@@ -183,7 +194,7 @@
 
       When The compilation define USE_HAL_QSPI_REGISTER_CALLBACKS is set to 0 or
       not defined, the callback registering feature is not available
-      and weak (surcharged) callbacks are used.
+      and weak (overridden) callbacks are used.
 
     *** Workarounds linked to Silicon Limitation ***
     ====================================================
@@ -192,17 +203,6 @@
          (++) Extra data written in the FIFO at the end of a read transfer
 
   @endverbatim
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                       opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
@@ -307,9 +307,6 @@ HAL_StatusTypeDef HAL_QSPI_Init(QSPI_HandleTypeDef *hqspi)
   assert_param(IS_QSPI_CS_HIGH_TIME(hqspi->Init.ChipSelectHighTime));
   assert_param(IS_QSPI_CLOCK_MODE(hqspi->Init.ClockMode));
 
-  /* Process locked */
-  __HAL_LOCK(hqspi);
-
   if(hqspi->State == HAL_QSPI_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
@@ -392,9 +389,6 @@ HAL_StatusTypeDef HAL_QSPI_DeInit(QSPI_HandleTypeDef *hqspi)
   {
     return HAL_ERROR;
   }
-
-  /* Process locked */
-  __HAL_LOCK(hqspi);
 
   /* Disable the QSPI Peripheral Clock */
   __HAL_QSPI_DISABLE(hqspi);
@@ -1979,7 +1973,7 @@ __weak void HAL_QSPI_TimeOutCallback(QSPI_HandleTypeDef *hqspi)
 #if (USE_HAL_QSPI_REGISTER_CALLBACKS == 1)
 /**
   * @brief  Register a User QSPI Callback
-  *         To be used instead of the weak (surcharged) predefined callback
+  *         To be used to override the weak predefined callback
   * @param hqspi QSPI handle
   * @param CallbackId ID of the callback to be registered
   *        This parameter can be one of the following values:
@@ -2093,7 +2087,7 @@ HAL_StatusTypeDef HAL_QSPI_RegisterCallback (QSPI_HandleTypeDef *hqspi, HAL_QSPI
 
 /**
   * @brief  Unregister a User QSPI Callback
-  *         QSPI Callback is redirected to the weak (surcharged) predefined callback
+  *         QSPI Callback is redirected to the weak predefined callback
   * @param hqspi QSPI handle
   * @param CallbackId ID of the callback to be unregistered
   *        This parameter can be one of the following values:
@@ -2225,7 +2219,7 @@ HAL_StatusTypeDef HAL_QSPI_UnRegisterCallback (QSPI_HandleTypeDef *hqspi, HAL_QS
   * @param  hqspi QSPI handle
   * @retval HAL state
   */
-HAL_QSPI_StateTypeDef HAL_QSPI_GetState(QSPI_HandleTypeDef *hqspi)
+HAL_QSPI_StateTypeDef HAL_QSPI_GetState(const QSPI_HandleTypeDef *hqspi)
 {
   /* Return QSPI handle state */
   return hqspi->State;
@@ -2236,7 +2230,7 @@ HAL_QSPI_StateTypeDef HAL_QSPI_GetState(QSPI_HandleTypeDef *hqspi)
 * @param  hqspi QSPI handle
 * @retval QSPI Error Code
 */
-uint32_t HAL_QSPI_GetError(QSPI_HandleTypeDef *hqspi)
+uint32_t HAL_QSPI_GetError(const QSPI_HandleTypeDef *hqspi)
 {
   return hqspi->ErrorCode;
 }
@@ -2270,25 +2264,33 @@ HAL_StatusTypeDef HAL_QSPI_Abort(QSPI_HandleTypeDef *hqspi)
       }
     }
 
-    /* Configure QSPI: CR register with Abort request */
-    SET_BIT(hqspi->Instance->CR, QUADSPI_CR_ABORT);
-
-    /* Wait until TC flag is set to go back in idle state */
-    status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_TC, SET, tickstart, hqspi->Timeout);
-
-    if (status == HAL_OK)
+    if (__HAL_QSPI_GET_FLAG(hqspi, QSPI_FLAG_BUSY) != RESET)
     {
-      __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_TC);
+      /* Configure QSPI: CR register with Abort request */
+      SET_BIT(hqspi->Instance->CR, QUADSPI_CR_ABORT);
 
-      /* Wait until BUSY flag is reset */
-      status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_BUSY, RESET, tickstart, hqspi->Timeout);
+      /* Wait until TC flag is set to go back in idle state */
+      status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_TC, SET, tickstart, hqspi->Timeout);
+
+      if (status == HAL_OK)
+      {
+        __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_TC);
+
+        /* Wait until BUSY flag is reset */
+        status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_BUSY, RESET, tickstart, hqspi->Timeout);
+      }
+
+      if (status == HAL_OK)
+      {
+        /* Reset functional mode configuration to indirect write mode by default */
+        CLEAR_BIT(hqspi->Instance->CCR, QUADSPI_CCR_FMODE);
+
+        /* Update state */
+        hqspi->State = HAL_QSPI_STATE_READY;
+      }
     }
-
-    if (status == HAL_OK)
+    else
     {
-      /* Reset functional mode configuration to indirect write mode by default */
-      CLEAR_BIT(hqspi->Instance->CCR, QUADSPI_CCR_FMODE);
-
       /* Update state */
       hqspi->State = HAL_QSPI_STATE_READY;
     }
@@ -2340,14 +2342,22 @@ HAL_StatusTypeDef HAL_QSPI_Abort_IT(QSPI_HandleTypeDef *hqspi)
     }
     else
     {
-      /* Clear interrupt */
-      __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_TC);
+      if (__HAL_QSPI_GET_FLAG(hqspi, QSPI_FLAG_BUSY) != RESET)
+      {
+        /* Clear interrupt */
+        __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_TC);
 
-      /* Enable the QSPI Transfer Complete Interrupt */
-      __HAL_QSPI_ENABLE_IT(hqspi, QSPI_IT_TC);
+        /* Enable the QSPI Transfer Complete Interrupt */
+        __HAL_QSPI_ENABLE_IT(hqspi, QSPI_IT_TC);
 
-      /* Configure QSPI: CR register with Abort request */
-      SET_BIT(hqspi->Instance->CR, QUADSPI_CR_ABORT);
+        /* Configure QSPI: CR register with Abort request */
+        SET_BIT(hqspi->Instance->CR, QUADSPI_CR_ABORT);
+      }
+      else
+      {
+        /* Change state of QSPI */
+        hqspi->State = HAL_QSPI_STATE_READY;
+      }
     }
   }
   return status;
@@ -2400,7 +2410,7 @@ HAL_StatusTypeDef HAL_QSPI_SetFifoThreshold(QSPI_HandleTypeDef *hqspi, uint32_t 
   * @param  hqspi QSPI handle.
   * @retval Fifo threshold (value between 1 and 16)
   */
-uint32_t HAL_QSPI_GetFifoThreshold(QSPI_HandleTypeDef *hqspi)
+uint32_t HAL_QSPI_GetFifoThreshold(const QSPI_HandleTypeDef *hqspi)
 {
   return ((READ_BIT(hqspi->Instance->CR, QUADSPI_CR_FTHRES) >> QUADSPI_CR_FTHRES_Pos) + 1U);
 }
@@ -2621,6 +2631,9 @@ static void QSPI_Config(QSPI_HandleTypeDef *hqspi, QSPI_CommandTypeDef *cmd, uin
                                          cmd->AlternateBytesSize | cmd->AlternateByteMode |
                                          cmd->AddressMode | cmd->InstructionMode |
                                          cmd->Instruction | FunctionalMode));
+
+        /* Clear AR register */
+        CLEAR_REG(hqspi->Instance->AR);
       }
     }
     else
@@ -2648,6 +2661,9 @@ static void QSPI_Config(QSPI_HandleTypeDef *hqspi, QSPI_CommandTypeDef *cmd, uin
                                          cmd->DataMode | (cmd->DummyCycles << QUADSPI_CCR_DCYC_Pos) |
                                          cmd->AlternateByteMode | cmd->AddressMode |
                                          cmd->InstructionMode | cmd->Instruction | FunctionalMode));
+
+        /* Clear AR register */
+        CLEAR_REG(hqspi->Instance->AR);
       }
     }
   }
@@ -2682,6 +2698,9 @@ static void QSPI_Config(QSPI_HandleTypeDef *hqspi, QSPI_CommandTypeDef *cmd, uin
                                          cmd->DataMode | (cmd->DummyCycles << QUADSPI_CCR_DCYC_Pos) |
                                          cmd->AlternateBytesSize | cmd->AlternateByteMode |
                                          cmd->AddressMode | cmd->InstructionMode | FunctionalMode));
+
+        /* Clear AR register */
+        CLEAR_REG(hqspi->Instance->AR);
       }
     }
     else
@@ -2711,6 +2730,9 @@ static void QSPI_Config(QSPI_HandleTypeDef *hqspi, QSPI_CommandTypeDef *cmd, uin
                                            cmd->DataMode | (cmd->DummyCycles << QUADSPI_CCR_DCYC_Pos) |
                                            cmd->AlternateByteMode | cmd->AddressMode |
                                            cmd->InstructionMode | FunctionalMode));
+
+          /* Clear AR register */
+          CLEAR_REG(hqspi->Instance->AR);
         }
       }
     }
@@ -2734,6 +2756,4 @@ static void QSPI_Config(QSPI_HandleTypeDef *hqspi, QSPI_CommandTypeDef *cmd, uin
   * @}
   */
 
-#endif /* defined(QUADSPI) || defined(QUADSPI1) || defined(QUADSPI2) */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif /* defined(QUADSPI) */

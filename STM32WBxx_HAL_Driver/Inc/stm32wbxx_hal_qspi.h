@@ -6,13 +6,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2019 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                       opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -590,13 +589,13 @@ HAL_StatusTypeDef     HAL_QSPI_UnRegisterCallback   (QSPI_HandleTypeDef *hqspi, 
   * @{
   */
 /* Peripheral Control and State functions  ************************************/
-HAL_QSPI_StateTypeDef HAL_QSPI_GetState        (QSPI_HandleTypeDef *hqspi);
-uint32_t              HAL_QSPI_GetError        (QSPI_HandleTypeDef *hqspi);
+HAL_QSPI_StateTypeDef HAL_QSPI_GetState        (const QSPI_HandleTypeDef *hqspi);
+uint32_t              HAL_QSPI_GetError        (const QSPI_HandleTypeDef *hqspi);
 HAL_StatusTypeDef     HAL_QSPI_Abort           (QSPI_HandleTypeDef *hqspi);
 HAL_StatusTypeDef     HAL_QSPI_Abort_IT        (QSPI_HandleTypeDef *hqspi);
 void                  HAL_QSPI_SetTimeout      (QSPI_HandleTypeDef *hqspi, uint32_t Timeout);
 HAL_StatusTypeDef     HAL_QSPI_SetFifoThreshold(QSPI_HandleTypeDef *hqspi, uint32_t Threshold);
-uint32_t              HAL_QSPI_GetFifoThreshold(QSPI_HandleTypeDef *hqspi);
+uint32_t              HAL_QSPI_GetFifoThreshold(const QSPI_HandleTypeDef *hqspi);
 /**
   * @}
   */
@@ -698,12 +697,10 @@ uint32_t              HAL_QSPI_GetFifoThreshold(QSPI_HandleTypeDef *hqspi);
   * @}
   */
 
-#endif /* defined(QUADSPI) || defined(QUADSPI1) || defined(QUADSPI2) */
+#endif /* defined(QUADSPI) */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* STM32WBxx_HAL_QSPI_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
