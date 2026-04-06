@@ -12,7 +12,7 @@ if [ $# -ne 1 ]; then
     echo "usage: $0 <mcu-suffix>"
     echo ""
     echo "eg: $0 C5"
-    echo "Clones https://github.com/STMicroelectronics/STM32CubeC5.git and extracts CMSIS + HAL files"
+    echo "Clones the DFP and drivers repos from STMicroelectronics and extracts CMSIS + HAL files"
     exit 1
 fi
 
@@ -22,29 +22,32 @@ suffix=$1
 mcu=STM32${suffix}
 mcu_lower=$(echo "stm32${suffix}" | tr '[:upper:]' '[:lower:]')
 
-repo_url="https://github.com/STMicroelectronics/STM32Cube${suffix}.git"
-
 cmsis=CMSIS/${mcu}xx
 hal=${mcu}xx_HAL_Driver
 
-# Clone into a temporary directory, with submodules.
+# Clone into a temporary directory, fetching only the two submodules we need.
 tmpdir=$(mktemp -d)
 trap "rm -rf $tmpdir" EXIT
 
-echo "Cloning $repo_url (with submodules) into $tmpdir ..."
-git clone --depth 1 --recurse-submodules --shallow-submodules "$repo_url" "$tmpdir/repo"
+dfp_repo="https://github.com/STMicroelectronics/${mcu_lower}xx-dfp.git"
+drivers_repo="https://github.com/STMicroelectronics/${mcu_lower}xx-drivers.git"
 
-src="$tmpdir/repo"
-dfp="$src/${mcu_lower}xx_dfp"
-drivers="$src/${mcu_lower}xx_drivers"
+echo "Cloning $dfp_repo into $tmpdir/dfp ..."
+git clone --depth 1 "$dfp_repo" "$tmpdir/dfp"
 
-if [ ! -d "$dfp" ]; then
+echo "Cloning $drivers_repo into $tmpdir/drivers ..."
+git clone --depth 1 "$drivers_repo" "$tmpdir/drivers"
+
+dfp="$tmpdir/dfp"
+drivers="$tmpdir/drivers"
+
+if [ ! -d "$dfp/Include" ]; then
     echo "ERROR: DFP submodule not found at $dfp"
     echo "Check the repository layout matches the expected CubeMX2 structure."
     exit 1
 fi
 
-if [ ! -d "$drivers" ]; then
+if [ ! -d "$drivers/hal" ]; then
     echo "ERROR: Drivers submodule not found at $drivers"
     echo "Check the repository layout matches the expected CubeMX2 structure."
     exit 1
