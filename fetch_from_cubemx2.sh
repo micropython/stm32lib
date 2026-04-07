@@ -92,6 +92,21 @@ fi
 # Copy LL headers (header-only, inline implementations).
 find "$drivers/ll" -maxdepth 1 -name "*.h" -exec cp {} "$hal/Inc/" \;
 
+# Copy template headers, renaming to match the convention used by other families.
+if [ -d "$drivers/templates/common" ]; then
+    for f in "$drivers/templates/common/"*.h; do
+        base=$(basename "$f")
+        case "$base" in
+            stm32_assert.h)
+                cp "$f" "$hal/Inc/stm32_assert_template.h" ;;
+            ${mcu_lower}xx_hal_conf.h)
+                cp "$f" "$hal/Inc/${mcu_lower}xx_hal_conf_template.h" ;;
+            *)
+                cp "$f" "$hal/Inc/$base" ;;
+        esac
+    done
+fi
+
 # Make sure tr and expand don't expect UTF-8, because these files aren't
 export LC_CTYPE=C
 
