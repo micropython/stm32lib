@@ -1,11 +1,12 @@
-STM32 Cube library - CMSIS and HAL for F0, F4, F7, G0, G4, H5, H7, L0, L1, L4, N6, U5, WB and WL microcontrollers
-=================================================================================================================
+STM32 Cube library - CMSIS and HAL for C5, F0, F4, F7, G0, G4, H5, H7, L0, L1, L4, N6, U5, WB and WL microcontrollers
+===================================================================================================================
 
 This repository contains a copy of STMicroelectronic's STM32 Cube firmware
-library, with CMSIS-device and HAL code for STM32F0xx, STM32F4xx, STM32F7xx,
-STM32G0xx, STM32G4xx, STM32H5xx, STM32H7xx, STM32L0xx, STM32L1xx, STM32L4xx,
-STM32N6xx, STM32U5xx, STM32WBxx and STM32WLxx microcontrollers.  Minor changes
-are applied to the HAL source to support MicroPython's port to the STM32.
+library, with CMSIS-device and HAL code for STM32C5xx, STM32F0xx, STM32F4xx,
+STM32F7xx, STM32G0xx, STM32G4xx, STM32H5xx, STM32H7xx, STM32L0xx, STM32L1xx,
+STM32L4xx, STM32N6xx, STM32U5xx, STM32WBxx and STM32WLxx microcontrollers.
+Minor changes are applied to the HAL source to support MicroPython's port to
+the STM32.
 
 The "vendor" branch contains the original sources and is updated from
 time-to-time when new versions become available.  The upstream sources are
@@ -44,8 +45,16 @@ Drivers/CMSIS/Device/ST/STM32F4xx/Source  -> CMSIS/STM32F4xx/Source
 ```
 And similar for the other microcontroller classes.
 
-The included `fetch_from_upstream.sh` script can automatically copy and process
-new source code from an STM git repository.
+Two scripts are provided to import source code from upstream:
+
+- **`fetch_from_upstream.sh`** -- for the original STM32Cube repositories
+  (F0, F4, F7, G0, G4, H5, H7, L0, L1, L4, N6, U5, WB, WL). Requires a
+  local clone of the upstream repo.
+
+- **`fetch_from_cubemx2.sh`** -- for the newer CubeMX2-era repositories (C5
+  and later). These repos use a different layout with separate submodules for
+  CMSIS device files and HAL/LL drivers. The script clones only the required
+  repos automatically.
 
 Updating to a new vendor version
 =================================
@@ -84,14 +93,25 @@ these steps:
 
 3. **Import and commit the vendor update**
 
+   For original STM32Cube repositories (F0, F4, F7, etc.):
    ```bash
    ./fetch_from_upstream.sh STM32WB /tmp/STM32CubeWB
    git add -A
    git commit -m "Import STM32CubeWB v1.23.0 on DD-Mon-YYYY."
    ```
 
-   The `fetch_from_upstream.sh` script will copy and process the new CMSIS and HAL
-   source files. The maintainer will create the version tag after merging.
+   For CubeMX2-era repositories (C5 and later):
+   ```bash
+   ./fetch_from_cubemx2.sh C5
+   git add -A
+   git commit -m "Import STM32CubeC5 v1.0.0 on DD-Mon-YYYY."
+   ```
+
+   Both scripts copy and process the new CMSIS and HAL source files. The
+   `fetch_from_cubemx2.sh` script also copies the CMSIS and HAL license files
+   from their upstream repositories. It handles cloning automatically -- no
+   need to clone the upstream repo first. The maintainer will create the
+   version tag after merging.
 
 4. **Create new work branch and rebase patches**
 
