@@ -108,9 +108,10 @@ these steps:
    ```
 
    Both scripts copy and process the new CMSIS and HAL source files. The
-   `fetch_from_cubemx2.sh` script handles cloning automatically -- no need to
-   clone the upstream repo first. The maintainer will create the version tag
-   after merging.
+   `fetch_from_cubemx2.sh` script also copies the CMSIS and HAL license files
+   from their upstream repositories. It handles cloning automatically -- no
+   need to clone the upstream repo first. The maintainer will create the
+   version tag after merging.
 
 4. **Create new work branch and rebase patches**
 

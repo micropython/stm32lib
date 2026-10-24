@@ -70,6 +70,7 @@ rm -rf "$cmsis/Include"
 rm -rf "$cmsis/Source"
 cp -r "$dfp/Include" "$cmsis/"
 cp -r "$dfp/Source" "$cmsis/"
+cp "$dfp/LICENSE.md" "$cmsis/"
 rm -rf "$cmsis"/Source/Templates/*/linker
 
 # HAL: remove any old files and copy across the new ones.
@@ -91,6 +92,7 @@ fi
 
 # Copy LL headers (header-only, inline implementations).
 find "$drivers/ll" -maxdepth 1 -name "*.h" -exec cp {} "$hal/Inc/" \;
+cp "$drivers/LICENSE.md" "$hal/"
 
 # Copy template headers, renaming to match the convention used by other families.
 if [ -d "$drivers/templates/common" ]; then
