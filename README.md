@@ -47,6 +47,14 @@ And similar for the other microcontroller classes.
 The included `fetch_from_upstream.sh` script can automatically copy and process
 new source code from an STM git repository.
 
+Licences
+========
+
+The upstream HAL driver repositories' default licence is BSD-3-Clause, and the
+CMSIS device repositories' default is Apache-2.0. `fetch_from_upstream.sh` keeps
+each repository's `LICENSE.md` with its component. Some files have their own
+licence headers, which take precedence over the component's default licence.
+
 Updating to a new vendor version
 =================================
 
