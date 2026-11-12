@@ -58,3 +58,9 @@ for dir in $cmsis $hal; do
     done
 done
 
+
+# Licences: keep each upstream LICENSE.md next to the code it covers. Many source
+# files only say "see the LICENSE file in the root directory of this component".
+echo "Copying licences"
+cp $gitsrc/Drivers/CMSIS/Device/ST/${mcu}xx/LICENSE.md $cmsis/LICENSE.md || exit 1
+cp $gitsrc/Drivers/${mcu}xx_HAL_Driver/LICENSE.md $hal/LICENSE.md || exit 1
